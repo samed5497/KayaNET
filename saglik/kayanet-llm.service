@@ -1,0 +1,14 @@
+[Unit]
+Description=KayaNET: yerel yapay zeka (llama-server) / local LLM
+After=network.target
+
+[Service]
+Environment=LD_LIBRARY_PATH=@AI@/bin
+ExecStart=@AI@/bin/llama-server -m @MODEL@ --host 127.0.0.1 --port 8080 -c 3072 -t 4 --no-webui --parallel 1
+Restart=on-failure
+RestartSec=10
+Nice=5
+MemoryMax=85%
+
+[Install]
+WantedBy=multi-user.target

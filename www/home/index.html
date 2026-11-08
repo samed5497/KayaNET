@@ -66,6 +66,17 @@
   </form>
   <div id="disk"></div>
 
+  <section class="sys ask" id="ask" hidden>
+    <h2>Sor <span>yerel yapay zeka, kaynaklarla cevaplar</span></h2>
+    <form class="search" id="askform" style="box-shadow:none;border:0;padding:0">
+      <input type="text" id="aq" placeholder="Örn: Kanayan yarayı nasıl durdururum?" autocomplete="off">
+      <button>Sor</button>
+    </form>
+    <div id="astage" class="slogan" style="margin-top:8px"></div>
+    <div id="aout" style="white-space:pre-wrap;margin-top:8px"></div>
+    <div id="asrc" class="facts"></div>
+  </section>
+
   <section class="sys" id="sys" hidden>
     <h2>Sistem <span id="model"></span></h2>
     <div class="meters" id="meters"></div>
@@ -238,6 +249,33 @@ function pollStats(){
   fetch("/home/stats.json", {cache:"no-store"}).then(r => r.ok ? r.json() : null).then(s => { if (s) showStats(s); }).catch(() => {});
 }
 pollStats(); setInterval(() => { if (!document.hidden) pollStats(); }, 5000);
+
+/* Yapay zeka asistanı: servis (8081) çalışıyorsa "Sor" kutusu görünür */
+const ASK = location.protocol + "//" + location.hostname + ":8081";
+fetch(ASK + "/status", {cache:"no-store"}).then(r => r.json()).then(s => { if (s.llm) $("ask").hidden = false; }).catch(() => {});
+$("askform").addEventListener("submit", async e => {
+  e.preventDefault();
+  const q = $("aq").value.trim(); if (!q) return;
+  $("aout").textContent = ""; $("asrc").innerHTML = ""; $("astage").textContent = "Gönderiliyor...";
+  try {
+    const r = await fetch(ASK + "/ask", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({q})});
+    const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
+    for (;;) {
+      const {value, done} = await rd.read(); if (done) break;
+      buf += dec.decode(value, {stream:true});
+      let k; while ((k = buf.indexOf("\n\n")) >= 0) {
+        const line = buf.slice(0, k).replace(/^data: /, ""); buf = buf.slice(k + 2);
+        const m = JSON.parse(line);
+        if (m.stage) $("astage").textContent = m.stage;
+        if (m.token) { $("astage").textContent = ""; $("aout").textContent += m.token; }
+        if (m.reset) $("aout").textContent = "";
+        if (m.error) $("aout").textContent = m.error;
+        if (m.sources) $("asrc").innerHTML = m.sources.map(x => `<span><a href="${esc(x.url)}">${esc(x.title)}</a></span>`).join("");
+        if (m.done) $("astage").textContent = "Yapay zeka hata yapabilir. Önemli konularda kaynakları kontrol edin.";
+      }
+    }
+  } catch (err) { $("aout").textContent = "Yapay zeka servisine ulaşılamadı. Normal aramayı kullanın."; $("astage").textContent = ""; }
+});
 
 loadBooks().then(build);
 </script>
