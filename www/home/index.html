@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KayaNET</title>
+<script src="/home/kn-i18n.js"></script>
 <style>
   :root{--bg:#f4f6f9;--card:#fff;--ink:#14202e;--mute:#5b6b7c;--line:#e1e6ec;--acc:#0b6bcb;--acc2:#e8f1fc;--ok:#1a9d5b;--warn:#d98a00;--bad:#d33a2c;--shadow:0 1px 2px rgba(20,32,46,.06),0 4px 14px rgba(20,32,46,.05)}
   @media (prefers-color-scheme:dark){:root{--bg:#0e141b;--card:#16202b;--ink:#e8eef5;--mute:#93a3b5;--line:#243242;--acc:#4da3ff;--acc2:#16304d;--ok:#3ecf8e;--warn:#f0b429;--bad:#ff6b5e;--shadow:none}}
@@ -11,7 +12,7 @@
   body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   a{color:inherit;text-decoration:none}
   .wrap{max-width:1040px;margin:0 auto;padding:16px}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  header{padding-right:96px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
   .brand{font-size:26px;font-weight:800;letter-spacing:-.5px}.brand b{color:var(--acc)}
   .slogan{color:var(--mute);font-size:14px}
   nav{display:flex;gap:8px;flex-wrap:wrap}
@@ -47,8 +48,13 @@
   .tags{display:flex;gap:6px;flex-wrap:wrap;font-size:12px}
   .tags span{background:var(--acc2);color:var(--acc);padding:2px 8px;border-radius:99px;font-weight:600}
   .tags span.g{background:var(--bg);color:var(--mute);font-weight:400}
-  .card.off{opacity:.55}.card.off .n::after{content:"yüklenmedi";font-size:11px;font-weight:600;color:var(--mute);align-self:center}
+  .card.off{opacity:.55}.card.off .n::after{content:attr(data-off);font-size:11px;font-weight:600;color:var(--mute);align-self:center}
   .empty{color:var(--mute);padding:20px;text-align:center}
+  .info summary{cursor:pointer;font-weight:700}.info p,.info li{color:var(--mute);font-size:14px}.info a{color:var(--acc);text-decoration:underline}
+  .devs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+  .dv{display:flex;gap:10px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13px}
+  .dv i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--ok)}.dv.off i{background:var(--mute)}.dv.off{opacity:.65}
+  .dv b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dv small{color:var(--mute)}
   footer{text-align:center;color:var(--mute);font-size:12px;margin:26px 0 8px}
 </style>
 </head>
@@ -83,9 +89,24 @@
     <div class="facts" id="facts"></div>
   </section>
 
+  <section class="sys" id="dev" hidden>
+    <h2>Bağlı cihazlar <span id="devn"></span></h2>
+    <div id="devl" class="devs"></div>
+  </section>
+
+  <details class="sys info">
+    <summary>Bu içerikler nereden geliyor?</summary>
+    <p>Bu sayfadaki tüm içerik bu cihazın içindedir; internet olmadan açılır. İçerikler, kurulum sırasında internetten bir kez indirilir:</p>
+    <ul>
+      <li>Ansiklopedi, kitaplık, tıp ve tamir içerikleri Kiwix projesinden (download.kiwix.org) ZIM dosyaları olarak indirilir. Kaynak: Vikipedi, iFixit, MedlinePlus vb.</li>
+      <li>Haritalar OpenStreetMap verisidir (Internet-in-a-Box harita sunucusundan). Türkiye'den bu sunucuya erişim engelli olabilir.</li>
+      <li>Yeni içerik eklemek için: <a href="/admin">Yönetim</a> → İçerik Yükle (cihaza internet bağlıyken).</li>
+    </ul>
+  </details>
+
   <div class="chips" id="chips"></div>
   <div id="list"></div>
-  <footer>KayaNET &middot; CODLAI Teknoloji AŞ. &middot; İçerikler: Wikipedia, OpenStreetMap, Kiwix, ilgili lisanslar altında</footer>
+  <footer>KayaNET &middot; CODLAI Teknoloji AŞ. &middot; <span>İçerikler: Wikipedia, OpenStreetMap, Kiwix, ilgili lisanslar altında</span></footer>
 </div>
 
 <script>
@@ -144,7 +165,8 @@ const CATS = [
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const $ = id => document.getElementById(id);
-let ITEMS = [], filter = "";
+let ITEMS = [], filter = "", CATLIST = [], LAST_STATS = null, LAST_DEV = null;
+const L = (tr, en) => KN.lang === "en" ? en : tr;
 
 /* Kiwix kataloğundan cihazdaki ZIM'leri oku */
 async function loadBooks(){
@@ -183,26 +205,30 @@ function build(books){
     ITEMS.push({ cat:"Diğer Kaynaklar", name:b.title || b.id, desc:b.id, lang:"", size:"", url:b.href, status:"" });
   sel.insertBefore(new Option("Tüm kütüphane", ""), sel.firstChild); sel.selectedIndex = 0;
   const cats = ["Tümü", ...new Set(ITEMS.map(i => i.cat))];
-  $("chips").innerHTML = cats.map((c,k) => `<button data-c="${k?esc(c):""}" class="${k?"":"on"}">${esc(c)}</button>`).join("");
+  CATLIST = cats; drawChips();
   $("chips").onclick = e => { const b = e.target.closest("button"); if(!b) return;
-    filter = b.dataset.c; [...$("chips").children].forEach(x => x.classList.toggle("on", x === b)); draw(); };
+    filter = b.dataset.c; drawChips(); draw(); };
   draw();
+}
+function drawChips(){
+  $("chips").innerHTML = CATLIST.map((c,k) => `<button data-c="${k?esc(c):""}" class="${(k?c:"") === filter ? "on":""}">${esc(KN.t(c))}</button>`).join("");
 }
 
 function draw(){
-  const q = $("q").value.trim().toLocaleLowerCase("tr");
+  const q = $("q").value.trim().toLocaleLowerCase(KN.lang);
   const shown = ITEMS.filter(i => (!filter || i.cat === filter) &&
-    (!q || (i.name + " " + i.desc).toLocaleLowerCase("tr").includes(q)));
+    (!q || (KN.t(i.name) + " " + KN.t(i.desc)).toLocaleLowerCase(KN.lang).includes(q)));
   let html = "", last = "";
   for (const i of shown) {
-    if (i.cat !== last) { if (last) html += "</div>"; html += `<h3>${esc(i.cat)}</h3><div class="grid">`; last = i.cat; }
+    if (i.cat !== last) { if (last) html += "</div>"; html += `<h3>${esc(KN.t(i.cat))}</h3><div class="grid">`; last = i.cat; }
     const tags = [i.lang && i.lang !== "—" ? `<span>${esc(i.lang)}</span>` : "", i.size && i.size !== "—" ? `<span class="g">${esc(i.size)}</span>` : "",
       i.status ? `<span class="g">${esc(i.status)}</span>` : ""].join("");
-    const inner = `<div class="n">${esc(i.name)}</div><div class="d">${esc(i.desc)}</div><div class="tags">${tags}</div>`;
-    html += i.url ? `<a class="card" href="${esc(i.url)}">${inner}</a>` : `<div class="card off">${inner}</div>`;
+    const inner = `<div class="n">${esc(KN.t(i.name))}</div><div class="d">${esc(KN.t(i.desc))}</div><div class="tags">${tags}</div>`;
+    html += i.url ? `<a class="card" href="${esc(i.url)}">${inner}</a>` : `<div class="card off" data-off="${esc(L("yüklenmedi","not installed"))}">${inner}</div>`;
   }
   if (last) html += "</div>";
-  $("list").innerHTML = html || `<div class="empty">Sonuç yok.</div>`;
+  $("list").innerHTML = html || `<div class="empty">${esc(KN.t("Sonuç yok."))}</div>`;
+  KN.apply($("list"));
 }
 $("q").addEventListener("input", draw);
 
@@ -216,9 +242,12 @@ $("search").addEventListener("submit", e => {
 });
 
 /* Sunucu saati: HTTP Date başlığından */
+let SRV_DATE = null;
+function showNow(){ if (!SRV_DATE) return; const lc = KN.lang === "en" ? "en-GB" : "tr-TR";
+  $("now").textContent = "· " + SRV_DATE.toLocaleDateString(lc) + " " + SRV_DATE.toLocaleTimeString(lc,{hour:"2-digit",minute:"2-digit"}); }
 fetch(location.href, {method:"HEAD", cache:"no-store"}).then(r => {
   const d = new Date(r.headers.get("Date")); if (isNaN(d)) return;
-  $("now").textContent = "· " + d.toLocaleDateString("tr-TR") + " " + d.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
+  SRV_DATE = d; showNow();
 }).catch(() => {});
 
 /* Disk ve güç uyarıları */
@@ -231,16 +260,17 @@ const fmtMB = m => m >= 1024 ? (m/1024).toFixed(1) + " GB" : m + " MB";
 const lvl = p => p >= 90 ? "b" : p >= 75 ? "w" : "";
 const meter = (l, p, t) => `<div class="m"><div class="lbl"><span>${l}</span><b>${t}</b></div><div class="bar"><i class="${lvl(p)}" style="width:${Math.min(100,p)}%"></i></div></div>`;
 function showStats(s){
+  LAST_STATS = s;
   const m = [], memUsed = s.mem.total - s.mem.avail;
   m.push(meter("CPU", s.cpu, s.cpu + "%" + (s.freq ? " · " + s.freq + " MHz" : "")));
   m.push(meter("RAM", 100*memUsed/s.mem.total, `${fmtMB(memUsed)} / ${fmtMB(s.mem.total)}`));
-  if (s.swap.total) m.push(meter("Takas", 100*(s.swap.total-s.swap.free)/s.swap.total, `${fmtMB(s.swap.total-s.swap.free)} / ${fmtMB(s.swap.total)}`));
-  if (s.temp !== null) m.push(meter("Sıcaklık", s.temp, s.temp + " °C"));
+  if (s.swap.total) m.push(meter(KN.t("Takas"), 100*(s.swap.total-s.swap.free)/s.swap.total, `${fmtMB(s.swap.total-s.swap.free)} / ${fmtMB(s.swap.total)}`));
+  if (s.temp !== null) m.push(meter(KN.t("Sıcaklık"), s.temp, s.temp + " °C"));
   for (const d of s.disks) m.push(meter(d.mount === "/" ? "Disk (SD)" : "Disk " + d.mount, 100*d.used/d.total, `${fmtMB(d.used)} / ${fmtMB(d.total)}`));
   $("meters").innerHTML = m.join("");
-  const up = s.uptime, f = [`Çalışma: ${Math.floor(up/86400)}g ${Math.floor(up%86400/3600)}s ${Math.floor(up%3600/60)}dk`, `Yük: ${s.load} (${s.cores} çekirdek)`];
-  if (s.clients !== null) f.push(`Bağlı cihaz: ${s.clients}`);
-  if (s.throttled !== null) f.push(s.throttled & 0x1 ? "⚠ Düşük voltaj şu an" : s.throttled & 0x10000 ? "⚠ Açılıştan beri düşük voltaj oldu" : "Güç: sorunsuz");
+  const up = s.uptime, f = [L("Çalışma: ","Uptime: ") + `${Math.floor(up/86400)}${L("g","d")} ${Math.floor(up%86400/3600)}${L("s","h")} ${Math.floor(up%3600/60)}${L("dk","m")}`, L(`Yük: ${s.load} (${s.cores} çekirdek)`, `Load: ${s.load} (${s.cores} cores)`)];
+  if (s.clients !== null) f.push(L("Bağlı cihaz: ","Connected devices: ") + s.clients);
+  if (s.throttled !== null) f.push(s.throttled & 0x1 ? L("⚠ Düşük voltaj şu an","⚠ Low voltage right now") : s.throttled & 0x10000 ? L("⚠ Açılıştan beri düşük voltaj oldu","⚠ Low voltage since boot") : L("Güç: sorunsuz","Power: OK"));
   $("facts").innerHTML = f.map(t => `<span class="${t.startsWith("⚠") ? "bad" : ""}">${esc(t)}</span>`).join("");
   $("model").textContent = s.model;
   $("sys").hidden = false;
@@ -248,6 +278,19 @@ function showStats(s){
 function pollStats(){
   fetch("/home/stats.json", {cache:"no-store"}).then(r => r.ok ? r.json() : null).then(s => { if (s) showStats(s); }).catch(() => {});
 }
+/* Bağlı cihazlar: devices.json */
+function showDevices(d){
+  LAST_DEV = d;
+  const list = (d && d.devices) || [], on = list.filter(x => x.online).length;
+  $("dev").hidden = false;
+  $("devn").textContent = L(`${on} bağlı / ${list.length} bilinen`, `${on} online / ${list.length} known`);
+  $("devl").innerHTML = list.length ? list.map(x => `<div class="dv ${x.online ? "" : "off"}"><i></i><div><b>${esc(x.name || x.mac)}</b><small>${esc(x.ip || "")} · ${esc(x.mac)}${x.online ? "" : " · " + L("bağlı değil","offline")}${x.signal ? " · " + x.signal + " dBm" : ""}</small></div></div>`).join("")
+    : `<div class="empty">${esc(KN.t("Henüz cihaz yok"))}</div>`;
+}
+function pollDevices(){
+  fetch("/home/devices.json", {cache:"no-store"}).then(r => r.ok ? r.json() : null).then(d => { if (d) showDevices(d); }).catch(() => {});
+}
+pollDevices(); setInterval(() => { if (!document.hidden) pollDevices(); }, 7000);
 pollStats(); setInterval(() => { if (!document.hidden) pollStats(); }, 5000);
 
 /* Yapay zeka asistanı: servis (8081) çalışıyorsa "Sor" kutusu görünür */
@@ -256,7 +299,7 @@ fetch(ASK + "/status", {cache:"no-store"}).then(r => r.json()).then(s => { if (s
 $("askform").addEventListener("submit", async e => {
   e.preventDefault();
   const q = $("aq").value.trim(); if (!q) return;
-  $("aout").textContent = ""; $("asrc").innerHTML = ""; $("astage").textContent = "Gönderiliyor...";
+  $("aout").textContent = ""; $("asrc").innerHTML = ""; $("astage").textContent = KN.t("Gönderiliyor...");
   try {
     const r = await fetch(ASK + "/ask", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({q})});
     const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
@@ -271,12 +314,17 @@ $("askform").addEventListener("submit", async e => {
         if (m.reset) $("aout").textContent = "";
         if (m.error) $("aout").textContent = m.error;
         if (m.sources) $("asrc").innerHTML = m.sources.map(x => `<span><a href="${esc(x.url)}">${esc(x.title)}</a></span>`).join("");
-        if (m.done) $("astage").textContent = "Yapay zeka hata yapabilir. Önemli konularda kaynakları kontrol edin.";
+        if (m.done) $("astage").textContent = KN.t("Yapay zeka hata yapabilir. Önemli konularda kaynakları kontrol edin.");
       }
     }
-  } catch (err) { $("aout").textContent = "Yapay zeka servisine ulaşılamadı. Normal aramayı kullanın."; $("astage").textContent = ""; }
+  } catch (err) { $("aout").textContent = KN.t("Yapay zeka servisine ulaşılamadı. Normal aramayı kullanın."); $("astage").textContent = ""; }
 });
 
+/* Dil: TR/EN. Sayfa metni Türkçe yazılı, İngilizce çeviri /home/i18n/home-en.json içinde. */
+KN.init({ base:"tr", dict:"/home/i18n/home-en.json", titleOf: () => "KayaNET", onChange: () => {
+  if (CATLIST.length) { drawChips(); draw(); }
+  showNow(); if (LAST_STATS) showStats(LAST_STATS); if (LAST_DEV) showDevices(LAST_DEV);
+}});
 loadBooks().then(build);
 </script>
 </body>

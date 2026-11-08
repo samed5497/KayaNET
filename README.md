@@ -115,7 +115,8 @@ Check now: `sudo ./scripts/disk-health.sh`. Disks behind some USB adapters don't
 install.sh                 main installer
 scripts/setup-ssd.sh       mounts the SSD at /library
 scripts/download-content.sh  downloads/updates ZIM files from Kiwix
-scripts/install-homepage.sh  installs the custom homepage
+scripts/install-homepage.sh  installs the custom homepage (TR/EN)
+scripts/install-admin-overlay.sh  TR/EN + modern theme for /admin via nginx sub_filter (IIAB files untouched; --remove undoes)
 scripts/status.sh          health check: disk, services, hotspot, content, power
 scripts/disk-health.sh     disk and power health check (saglik/: its systemd timer)
 config/iiab-overrides.yml  Internet-in-a-Box settings
@@ -253,7 +254,8 @@ Hemen kontrol: `sudo ./scripts/disk-health.sh`. Bazı USB adaptörlerinin arkas�
 install.sh                   ana kurulum betiği
 scripts/setup-ssd.sh         SSD'yi /library klasörüne bağlar
 scripts/download-content.sh  Kiwix'ten ZIM dosyalarını indirir/günceller
-scripts/install-homepage.sh  özel ana sayfayı kurar
+scripts/install-homepage.sh  özel ana sayfayı kurar (TR/EN)
+scripts/install-admin-overlay.sh  /admin için TR/EN + modern tema, nginx sub_filter ile (IIAB dosyalarına dokunmaz; --remove geri alır)
 scripts/status.sh            sağlık kontrolü: disk, servisler, hotspot, içerik, güç
 scripts/disk-health.sh       disk ve güç sağlığı denetimi (saglik/: systemd zamanlayıcısı)
 config/iiab-overrides.yml    Internet-in-a-Box ayarları

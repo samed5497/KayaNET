@@ -13,6 +13,9 @@ if [ -f "$DST/index.html" ] && [ ! -f "$DST/index.html.iiab-original" ]; then
   cp "$DST/index.html" "$DST/index.html.iiab-original"
 fi
 cp "$SRC/index.html" "$SRC/acil.html" "$DST/"
+mkdir -p "$DST/i18n"
+cp "$SRC/kn-i18n.js" "$DST/"
+cp "$SRC"/i18n/*.json "$DST/i18n/"
 echo "Ana sayfa kuruldu / homepage installed: http://box.lan/home"
 echo "Geri almak için / to restore: sudo cp $DST/index.html.iiab-original $DST/index.html"
 
