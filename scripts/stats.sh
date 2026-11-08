@@ -71,8 +71,23 @@ while :; do
     chmod 644 "$OUT_DIR/devices.json.tmp"; mv "$OUT_DIR/devices.json.tmp" "$OUT_DIR/devices.json"
   } || true
 
-  printf '{"ts":%s,"model":"%s","cpu":%s,"cores":%s,"freq":%s,"load":%s,"temp":%s,"uptime":%s,"mem":{"total":%s,"avail":%s},"swap":{"total":%s,"free":%s},"disks":[%s],"throttled":%s,"clients":%s}\n' \
-    "$(date +%s)" "${model//\"/}" "$cpu" "$cores" "$freq" "$load" "$temp" "$up" "$mt" "$ma" "$st" "$sf" "$disks" "$thr" "$clients" > "$OUT.tmp"
+  # Batarya (sensörden bağımsız): 1) /sys/class/power_supply  2) /etc/kayanet/battery.sh (JSON basar)  3) /run/kayanet/battery.json
+  # Battery (sensor-agnostic): sysfs, or a hook script / file printing {"pct":N,"volt":V,"status":"charging|discharging|full"}
+  bat=null
+  for ps in /sys/class/power_supply/*; do
+    [ -r "$ps/capacity" ] && [ "$(cat "$ps/type" 2>/dev/null)" != "Mains" ] || continue
+    bst=$(tr 'A-Z' 'a-z' < "$ps/status" 2>/dev/null || echo unknown)
+    bat="{\"pct\":$(cat "$ps/capacity"),\"status\":\"$bst\"}"; break
+  done
+  if [ "$bat" = null ]; then
+    b=""
+    [ -x /etc/kayanet/battery.sh ] && b=$(timeout 3 /etc/kayanet/battery.sh 2>/dev/null | head -c 300)
+    [ -z "$b" ] && [ -r /run/kayanet/battery.json ] && b=$(head -c 300 /run/kayanet/battery.json)
+    case "$b" in "{"*"pct"*"}") bat="$b";; esac
+  fi
+
+  printf '{"ts":%s,"model":"%s","cpu":%s,"cores":%s,"freq":%s,"load":%s,"temp":%s,"uptime":%s,"mem":{"total":%s,"avail":%s},"swap":{"total":%s,"free":%s},"disks":[%s],"throttled":%s,"clients":%s,"battery":%s}\n' \
+    "$(date +%s)" "${model//\"/}" "$cpu" "$cores" "$freq" "$load" "$temp" "$up" "$mt" "$ma" "$st" "$sf" "$disks" "$thr" "$clients" "$bat" > "$OUT.tmp"
   chmod 644 "$OUT.tmp"; mv "$OUT.tmp" "$OUT"
   [ -n "${ONCE:-}" ] && exit 0
   sleep 5

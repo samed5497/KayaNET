@@ -1,5 +1,5 @@
 [Unit]
-Description=HAS_PrepperDisk: disk ve güç sağlığı / disk and power health
+Description=KayaNET Prepper Disk: disk ve güç sağlığı / disk and power health
 
 [Service]
 Type=oneshot

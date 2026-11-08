@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# HAS_PrepperDisk sağlık kontrolü: disk, servisler, hotspot, içerikler, güç ve sıcaklık.
+# KayaNET Prepper Disk sağlık kontrolü: disk, servisler, hotspot, içerikler, güç ve sıcaklık.
 # Health check: disk, services, hotspot, content, power and temperature.
 # Sadece okur, hiçbir şeyi değiştirmez. sudo gerekmez.
 # Read-only, changes nothing. No sudo needed.

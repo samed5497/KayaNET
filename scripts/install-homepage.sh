@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# HAS_PrepperDisk ana sayfasını Internet-in-a-Box'a kurar (eskisinin yedeğini alır).
-# Installs the HAS_PrepperDisk homepage into Internet-in-a-Box (backs up the old one).
+# KayaNET Prepper Disk ana sayfasını Internet-in-a-Box'a kurar (eskisinin yedeğini alır).
+# Installs the KayaNET Prepper Disk homepage into Internet-in-a-Box (backs up the old one).
 set -euo pipefail
 
 [ "$EUID" -eq 0 ] || { echo "sudo ile çalıştır / run with sudo" >&2; exit 1; }
@@ -14,7 +14,7 @@ if [ -f "$DST/index.html" ] && [ ! -f "$DST/index.html.iiab-original" ]; then
 fi
 cp "$SRC/index.html" "$SRC/acil.html" "$DST/"
 mkdir -p "$DST/i18n"
-cp "$SRC/kn-i18n.js" "$DST/"
+cp "$SRC/kn-i18n.js" "$SRC/kn-bar.js" "$DST/"
 cp "$SRC"/i18n/*.json "$DST/i18n/"
 echo "Ana sayfa kuruldu / homepage installed: http://box.lan/home"
 echo "Geri almak için / to restore: sudo cp $DST/index.html.iiab-original $DST/index.html"

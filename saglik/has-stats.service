@@ -1,5 +1,5 @@
 [Unit]
-Description=HAS_PrepperDisk: sistem bilgisi / system stats for the homepage
+Description=KayaNET Prepper Disk: sistem bilgisi / system stats for the homepage
 
 [Service]
 ExecStart=@REPO@/scripts/stats.sh
