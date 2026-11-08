@@ -1,0 +1,11 @@
+[Unit]
+Description=HAS_PrepperDisk: sistem bilgisi / system stats for the homepage
+
+[Service]
+ExecStart=@REPO@/scripts/stats.sh
+Restart=always
+RestartSec=5
+Nice=10
+
+[Install]
+WantedBy=multi-user.target
