@@ -15,3 +15,10 @@ fi
 cp "$SRC/index.html" "$SRC/acil.html" "$DST/"
 echo "Ana sayfa kuruldu / homepage installed: http://box.lan/home"
 echo "Geri almak için / to restore: sudo cp $DST/index.html.iiab-original $DST/index.html"
+
+# Sistem bilgisi servisi (RAM, CPU, sıcaklık) / system stats service
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+sed "s#@REPO@#$REPO#g" "$REPO/saglik/has-stats.service" > /etc/systemd/system/has-stats.service
+systemctl daemon-reload
+systemctl enable --now has-stats.service >/dev/null
+echo "Sistem bilgisi servisi çalışıyor / stats service running: has-stats.service"

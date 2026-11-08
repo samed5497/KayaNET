@@ -3,143 +3,90 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HAS_PrepperDisk :: Ana Sayfa</title>
+<title>KayaNET</title>
 <style>
-  body{margin:0;background:#E5E5E5;color:#000;font-family:Verdana,Tahoma,Arial,sans-serif;font-size:11px}
-  a{color:#006699;text-decoration:none}
-  a:hover{color:#DD6900;text-decoration:underline}
-  .wrap{max-width:980px;margin:0 auto;padding:10px}
-  .bodyline{background:#fff;border:1px solid #98AAB1;padding:8px}
-
-  /* başlık */
-  .top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:4px 4px 10px}
-  .logo{font-family:"Trebuchet MS",Verdana,sans-serif;font-size:26px;font-weight:bold;color:#006699;letter-spacing:-1px;
-    text-shadow:1px 1px 0 #C7D0D7}
-  .logo span{color:#DD6900}
-  .slogan{font-size:11px;color:#555;margin-top:2px}
-  .navlinks{font-size:11px;font-weight:bold}
-  .navlinks a{margin-left:10px}
-  .navlinks a::before{content:"» ";color:#999;font-weight:normal}
-  .navlinks a.acil{color:#B00000}
-
-  .crumb{font-weight:bold;font-size:12px;margin:8px 2px}
-  .small{font-size:10px;color:#444}
-
-  /* tablolar */
-  .scroll{overflow-x:auto}
-  table.forumline{width:100%;border-collapse:collapse;border:1px solid #006699;background:#fff;margin-bottom:10px}
-  .forumline th{background:linear-gradient(#3F7FAD,#006699);color:#FFA34F;font-size:11px;font-weight:bold;
-    height:24px;padding:0 6px;border:1px solid #fff;border-top:0;white-space:nowrap}
-  .forumline td{padding:5px 6px;border:1px solid #fff}
-  td.cat{background:linear-gradient(#EEF2F5,#C7D0D7);height:22px;font-weight:bold;font-size:12px;letter-spacing:1px}
-  td.cat a{color:#006699}
-  td.row1{background:#EFEFEF}
-  td.row2{background:#DEE3E7}
-  td.row3{background:#D1D7DC}
-  td.c{text-align:center}
-  .fname{font-size:12px;font-weight:bold}
-  .fdesc{font-size:11px;color:#222;margin-top:2px}
-  .fmod{font-size:10px;color:#666;margin-top:3px}
-  .off .fname{color:#777}
-
-  /* klasör ikonları */
-  .fold{display:inline-block;position:relative;width:22px;height:16px;margin-top:4px;
-    background:linear-gradient(#FFE38A,#F2B935);border:1px solid #B07F12;border-radius:1px}
-  .fold::before{content:"";position:absolute;left:-1px;top:-5px;width:9px;height:4px;background:#F7CF5C;
-    border:1px solid #B07F12;border-bottom:0;border-radius:2px 2px 0 0}
-  .fold.new::after{content:"";position:absolute;right:-4px;top:-4px;width:7px;height:7px;background:#E2451D;
-    border:1px solid #fff;border-radius:50%}
-  .fold.gray{background:linear-gradient(#E6E6E6,#B9B9B9);border-color:#888}
-  .fold.gray::before{background:#D3D3D3;border-color:#888}
-
-  /* arama kutusu */
-  .search td{background:#EFEFEF}
-  .search input[type=text],.search select{font-family:Verdana,sans-serif;font-size:11px;border:1px solid #7F9DB9;padding:2px;background:#fff}
-  .search input[type=text]{width:220px;max-width:100%}
-  .btn{font-family:Verdana,sans-serif;font-size:11px;font-weight:bold;background:#FAFAFA;border:1px solid #000;padding:1px 6px;cursor:pointer}
-  .btn:hover{background:#FFF3D6}
-
-  .legend{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin:4px 2px 10px}
-  .legend span{display:flex;align-items:center;gap:6px}
-  .legend .fold{margin-top:0;transform:scale(.8)}
-
-  #disk td{color:#B00000;font-weight:bold;font-size:12px}
-  .copy{text-align:center;font-size:10px;color:#444;margin:12px 0 4px;line-height:1.6}
-
-  @media (max-width:640px){ .hide-s{display:none} .logo{font-size:22px} }
-  /* Telefonda okunur yazı ve parmakla basılabilir bağlantılar / readable text and tappable links on phones */
-  @media (max-width:640px){
-    body{font-size:14px}
-    .wrap{padding:4px}
-    .navlinks{font-size:15px;line-height:2.2}
-    .navlinks a{margin:0 14px 0 0}
-    .crumb{font-size:14px}
-    .small{font-size:12px}
-    .forumline th{font-size:13px}
-    .forumline td{padding:8px 6px}
-    td.cat{font-size:14px}
-    .fname{font-size:16px}
-    .fdesc{font-size:13px}
-    .fmod{font-size:12px}
-    .search input[type=text],.search select,.btn{font-size:16px;padding:6px}
-    .search input[type=text]{width:100%;box-sizing:border-box;margin:4px 0}
-    .copy{font-size:12px}
-  }
+  :root{--bg:#f4f6f9;--card:#fff;--ink:#14202e;--mute:#5b6b7c;--line:#e1e6ec;--acc:#0b6bcb;--acc2:#e8f1fc;--ok:#1a9d5b;--warn:#d98a00;--bad:#d33a2c;--shadow:0 1px 2px rgba(20,32,46,.06),0 4px 14px rgba(20,32,46,.05)}
+  @media (prefers-color-scheme:dark){:root{--bg:#0e141b;--card:#16202b;--ink:#e8eef5;--mute:#93a3b5;--line:#243242;--acc:#4da3ff;--acc2:#16304d;--ok:#3ecf8e;--warn:#f0b429;--bad:#ff6b5e;--shadow:none}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1040px;margin:0 auto;padding:16px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .brand{font-size:26px;font-weight:800;letter-spacing:-.5px}.brand b{color:var(--acc)}
+  .slogan{color:var(--mute);font-size:14px}
+  nav{display:flex;gap:8px;flex-wrap:wrap}
+  nav a{padding:8px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:600}
+  nav a.acil{background:var(--bad);border-color:var(--bad);color:#fff}
+  .search{display:flex;gap:8px;flex-wrap:wrap;background:var(--card);padding:10px;border-radius:16px;box-shadow:var(--shadow);border:1px solid var(--line)}
+  .search input,.search select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .search input{flex:1 1 220px;min-width:0}.search select{flex:0 1 200px;max-width:100%}
+  .search button{font:inherit;font-weight:700;background:var(--acc);color:#fff;border:0;border-radius:10px;padding:12px 22px;cursor:pointer}
+  .alert{background:#fff4e0;color:#7a4b00;border:1px solid #f0c36a;border-radius:12px;padding:10px 14px;margin-top:12px;font-size:14px}
+  @media (prefers-color-scheme:dark){.alert{background:#3a2c0d;color:#ffd98a;border-color:#6b5217}}
+  .sys{margin:14px 0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+  .sys h2{margin:0 0 10px;font-size:13px;letter-spacing:.8px;text-transform:uppercase;color:var(--mute);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .sys h2 span{text-transform:none;letter-spacing:0;font-weight:400}
+  .meters{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .m .lbl{display:flex;justify-content:space-between;font-size:13px;color:var(--mute);margin-bottom:4px}
+  .m .lbl b{color:var(--ink);font-weight:600}
+  .bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:var(--ok);border-radius:99px;transition:width .5s}
+  .bar i.w{background:var(--warn)}.bar i.b{background:var(--bad)}
+  .facts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;font-size:13px}
+  .facts span{background:var(--bg);border:1px solid var(--line);padding:4px 10px;border-radius:99px;color:var(--mute)}
+  .facts span.bad{color:var(--bad);border-color:var(--bad)}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+  .chips button{flex:none;font:inherit;font-size:14px;font-weight:600;cursor:pointer;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 14px}
+  .chips button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  h3{margin:18px 2px 8px;font-size:13px;letter-spacing:.8px;text-transform:uppercase;color:var(--mute)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+  .card{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);transition:transform .1s,border-color .1s}
+  a.card:hover{transform:translateY(-2px);border-color:var(--acc)}
+  .card .n{font-weight:700;font-size:16px;display:flex;justify-content:space-between;gap:8px}
+  .card .d{color:var(--mute);font-size:14px;margin:4px 0 8px}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;font-size:12px}
+  .tags span{background:var(--acc2);color:var(--acc);padding:2px 8px;border-radius:99px;font-weight:600}
+  .tags span.g{background:var(--bg);color:var(--mute);font-weight:400}
+  .card.off{opacity:.55}.card.off .n::after{content:"yüklenmedi";font-size:11px;font-weight:600;color:var(--mute);align-self:center}
+  .empty{color:var(--mute);padding:20px;text-align:center}
+  footer{text-align:center;color:var(--mute);font-size:12px;margin:26px 0 8px}
 </style>
 </head>
 <body>
-<div class="wrap"><div class="bodyline">
+<div class="wrap">
+  <header>
+    <div><div class="brand">Kaya<b>NET</b></div><div class="slogan">Çevrimdışı bilgi arşivi, internet olmasa da açık <span id="now"></span></div></div>
+    <nav><a href="/home/acil.html" class="acil">Acil Durum</a><a href="/kiwix/">Kütüphane</a><a href="/maps">Haritalar</a><a href="/admin">Yönetim</a></nav>
+  </header>
 
-  <div class="top">
-    <div>
-      <div class="logo">HAS_<span>Prepper</span>Disk</div>
-      <div class="slogan">Çevrimdışı bilgi arşivi &mdash; internet olmasa da açık</div>
-    </div>
-    <div class="navlinks">
-      <a href="/home/acil.html" class="acil">Acil Durum</a><a href="/kiwix/">Kütüphane</a><a href="/maps">Haritalar</a><a href="/admin">Yönetim</a>
-    </div>
-  </div>
+  <form class="search" id="search">
+    <input type="search" id="q" placeholder="Ara: ilk yardım, su arıtma, anten..." autocomplete="off">
+    <select id="book" aria-label="Kaynak"></select>
+    <button>Ara</button>
+  </form>
+  <div id="disk"></div>
 
-  <table class="forumline search"><tr><td>
-    <form id="search">
-      <b>Ara:</b>
-      <input type="text" id="q" placeholder="ilk yardım, su arıtma...">
-      <select id="book"></select>
-      <input type="submit" class="btn" value="Git">
+  <section class="sys ask" id="ask" hidden>
+    <h2>Sor <span>yerel yapay zeka, kaynaklarla cevaplar</span></h2>
+    <form class="search" id="askform" style="box-shadow:none;border:0;padding:0">
+      <input type="text" id="aq" placeholder="Örn: Kanayan yarayı nasıl durdururum?" autocomplete="off">
+      <button>Sor</button>
     </form>
-  </td></tr></table>
+    <div id="astage" class="slogan" style="margin-top:8px"></div>
+    <div id="aout" style="white-space:pre-wrap;margin-top:8px"></div>
+    <div id="asrc" class="facts"></div>
+  </section>
 
-  <div class="crumb"><a href="/home">HAS_PrepperDisk Ana Sayfa</a></div>
-  <div class="small" style="margin:0 2px 6px" id="now"></div>
-  <table class="forumline" id="disk" hidden><tr><th>Disk ve güç uyarısı</th></tr></table>
+  <section class="sys" id="sys" hidden>
+    <h2>Sistem <span id="model"></span></h2>
+    <div class="meters" id="meters"></div>
+    <div class="facts" id="facts"></div>
+  </section>
 
-  <div class="scroll">
-  <table class="forumline" id="forums">
-    <tr>
-      <th colspan="2">Bölüm</th>
-      <th class="hide-s" width="60">Dil</th>
-      <th width="80">Boyut</th>
-      <th class="hide-s" width="150">Durum</th>
-    </tr>
-  </table>
-  </div>
-
-  <div class="legend small">
-    <span><i class="fold"></i> Hazır</span>
-    <span><i class="fold gray"></i> Henüz yüklenmedi</span>
-  </div>
-
-  <table class="forumline">
-    <tr><td class="cat">Sistem bilgisi</td></tr>
-    <tr><td class="row1" id="stats"></td></tr>
-  </table>
-
-  <div class="copy">
-    HAS_PrepperDisk &copy; 2026 &middot; Raspberry Pi 5 üzerinde çalışır<br>
-    İçerikler: Wikipedia, OpenStreetMap, Kolibri &mdash; ilgili lisanslar altında
-  </div>
-
-</div></div>
+  <div class="chips" id="chips"></div>
+  <div id="list"></div>
+  <footer>KayaNET &middot; CODLAI Teknoloji AŞ. &middot; İçerikler: Wikipedia, OpenStreetMap, Kiwix, ilgili lisanslar altında</footer>
+</div>
 
 <script>
 /* İçerik listesi. Bölüm eklemek/çıkarmak için sadece burayı düzenle.
@@ -196,8 +143,10 @@ const CATS = [
 ];
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $ = id => document.getElementById(id);
+let ITEMS = [], filter = "";
 
-/* Kiwix kataloğundan cihazdaki ZIM'leri oku: { "wikipedia_tr_all_maxi_2026-09": "/kiwix/content/..." } */
+/* Kiwix kataloğundan cihazdaki ZIM'leri oku */
 async function loadBooks(){
   try{
     const r = await fetch("/kiwix/catalog/v2/entries?count=-1");
@@ -207,92 +156,128 @@ async function loadBooks(){
       const l = e.querySelector('link[type="text/html"]');
       if (!l) continue;
       const href = l.getAttribute("href");
-      const title = (e.querySelector("title") || {}).textContent || "";
-      books.push({ id: href.split("/").filter(Boolean).pop(), href, title });
+      books.push({ id: href.split("/").filter(Boolean).pop(), href, title: (e.querySelector("title")||{}).textContent || "" });
     }
     return books;
   }catch(e){ return null; }
 }
 
-function render(books){
-  let html = "", ready = 0, total = 0;
-  const used = new Set();
-  const sel = document.getElementById("book");
-  for (const c of CATS) {
-    html += `<tr><td class="cat" colspan="5">${esc(c.title)}</td></tr>`;
-    for (const i of c.items) {
-      total++;
-      let url = i.url || null, status = i.url ? "Kurulu" : "Henüz yüklenmedi";
-      if (i.zim) {
-        if (books === null) { url = "/kiwix/"; status = "Kütüphaneden açın"; }
-        else {
-          const b = books.filter(b => b.id.startsWith(i.zim + "_")).sort((a,z) => a.id < z.id ? 1 : -1)[0];
-          if (b) {
-            used.add(b.id);
-            url = b.href;
-            const v = b.id.match(/(\d{4})-(\d{2})[a-z]?$/);
-            status = v ? `${v[2]}/${v[1]} sürümü` : "Kurulu";
-            if (i.search) sel.add(new Option(i.name, b.id));
-          }
+function build(books){
+  const used = new Set(), sel = $("book");
+  for (const c of CATS) for (const i of c.items) {
+    let url = i.url || null, status = "";
+    if (i.zim) {
+      if (books === null) { url = "/kiwix/"; }
+      else {
+        const b = books.filter(b => b.id.startsWith(i.zim + "_")).sort((a,z) => a.id < z.id ? 1 : -1)[0];
+        if (b) {
+          used.add(b.id); url = b.href;
+          const v = b.id.match(/(\d{4})-(\d{2})[a-z]?$/); if (v) status = `${v[2]}/${v[1]}`;
+          if (i.search) sel.add(new Option(i.name, b.id));
         }
       }
-      if (url) ready++;
-      const icon = !url ? "fold gray" : "fold";
-      const name = url ? `<a href="${esc(url)}" class="fname">${esc(i.name)}</a>` : `<span class="fname">${esc(i.name)}</span>`;
-      html += `<tr class="${url ? "" : "off"}">
-        <td class="row1 c" width="40"><i class="${icon}"></i></td>
-        <td class="row1">${name}<div class="fdesc">${esc(i.desc)}</div></td>
-        <td class="row2 c hide-s">${esc(i.lang)}</td>
-        <td class="row2 c">${esc(i.size)}</td>
-        <td class="row3 hide-s small">${esc(status)}</td></tr>`;
     }
+    ITEMS.push({ cat:c.title, ...i, url, status });
   }
-  // Listede olmayan ama cihazda yüklü ZIM'ler / installed ZIMs not listed above
-  const others = (books || []).filter(b => !used.has(b.id));
-  if (others.length) {
-    html += `<tr><td class="cat" colspan="5">Diğer Kaynaklar</td></tr>`;
-    for (const b of others) {
-      total++; ready++;
-      html += `<tr>
-        <td class="row1 c" width="40"><i class="fold"></i></td>
-        <td class="row1"><a href="${esc(b.href)}" class="fname">${esc(b.title || b.id)}</a><div class="fdesc">${esc(b.id)}</div></td>
-        <td class="row2 c hide-s">—</td><td class="row2 c">—</td>
-        <td class="row3 hide-s small">Kurulu</td></tr>`;
-    }
-  }
-  document.getElementById("forums").insertAdjacentHTML("beforeend", html);
-  if (!sel.options.length) sel.add(new Option("Tüm kütüphane", ""));
-  document.getElementById("stats").innerHTML =
-    `Toplam <b>${total}</b> kaynak var, bunlardan <b>${ready}</b> tanesi kullanıma hazır.<br>
-     Bu sayfa internet bağlantısı olmadan çalışır.`;
+  for (const b of (books||[]).filter(b => !used.has(b.id)))
+    ITEMS.push({ cat:"Diğer Kaynaklar", name:b.title || b.id, desc:b.id, lang:"", size:"", url:b.href, status:"" });
+  sel.insertBefore(new Option("Tüm kütüphane", ""), sel.firstChild); sel.selectedIndex = 0;
+  const cats = ["Tümü", ...new Set(ITEMS.map(i => i.cat))];
+  $("chips").innerHTML = cats.map((c,k) => `<button data-c="${k?esc(c):""}" class="${k?"":"on"}">${esc(c)}</button>`).join("");
+  $("chips").onclick = e => { const b = e.target.closest("button"); if(!b) return;
+    filter = b.dataset.c; [...$("chips").children].forEach(x => x.classList.toggle("on", x === b)); draw(); };
+  draw();
 }
 
-/* Saat, telefonun değil Pi'nin saatidir: HTTP yanıtının Date başlığından okunur. */
-fetch(location.href, {method:"HEAD", cache:"no-store"}).then(r => {
-  const d = new Date(r.headers.get("Date"));
-  if (isNaN(d)) return;
-  document.getElementById("now").textContent =
-    "Sunucu saati: " + d.toLocaleDateString("tr-TR") + " " + d.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
-}).catch(() => {});
+function draw(){
+  const q = $("q").value.trim().toLocaleLowerCase("tr");
+  const shown = ITEMS.filter(i => (!filter || i.cat === filter) &&
+    (!q || (i.name + " " + i.desc).toLocaleLowerCase("tr").includes(q)));
+  let html = "", last = "";
+  for (const i of shown) {
+    if (i.cat !== last) { if (last) html += "</div>"; html += `<h3>${esc(i.cat)}</h3><div class="grid">`; last = i.cat; }
+    const tags = [i.lang && i.lang !== "—" ? `<span>${esc(i.lang)}</span>` : "", i.size && i.size !== "—" ? `<span class="g">${esc(i.size)}</span>` : "",
+      i.status ? `<span class="g">${esc(i.status)}</span>` : ""].join("");
+    const inner = `<div class="n">${esc(i.name)}</div><div class="d">${esc(i.desc)}</div><div class="tags">${tags}</div>`;
+    html += i.url ? `<a class="card" href="${esc(i.url)}">${inner}</a>` : `<div class="card off">${inner}</div>`;
+  }
+  if (last) html += "</div>";
+  $("list").innerHTML = html || `<div class="empty">Sonuç yok.</div>`;
+}
+$("q").addEventListener("input", draw);
 
-document.getElementById("search").addEventListener("submit", e => {
+$("search").addEventListener("submit", e => {
   e.preventDefault();
-  const q = document.getElementById("q").value.trim();
-  const book = document.getElementById("book").value;
+  const q = $("q").value.trim(), book = $("book").value;
   if (!q) return;
   location.href = book
     ? `/kiwix/search?books.name=${encodeURIComponent(book)}&pattern=${encodeURIComponent(q)}`
     : `/kiwix/search?pattern=${encodeURIComponent(q)}`;
 });
 
-fetch("/home/disk.json", {cache:"no-store"}).then(r => r.ok ? r.json() : null).then(d => {
-  if (!d || !d.warnings || !d.warnings.length) return;
-  const box = document.getElementById("disk");
-  for (const w of d.warnings) box.insertRow().insertCell().textContent = w;
-  box.hidden = false;
+/* Sunucu saati: HTTP Date başlığından */
+fetch(location.href, {method:"HEAD", cache:"no-store"}).then(r => {
+  const d = new Date(r.headers.get("Date")); if (isNaN(d)) return;
+  $("now").textContent = "· " + d.toLocaleDateString("tr-TR") + " " + d.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
 }).catch(() => {});
 
-loadBooks().then(render);
+/* Disk ve güç uyarıları */
+fetch("/home/disk.json", {cache:"no-store"}).then(r => r.ok ? r.json() : null).then(d => {
+  if (d && d.warnings) $("disk").innerHTML = d.warnings.map(w => `<div class="alert">${esc(w)}</div>`).join("");
+}).catch(() => {});
+
+/* Sistem bilgisi: stats.json 5 sn'de bir */
+const fmtMB = m => m >= 1024 ? (m/1024).toFixed(1) + " GB" : m + " MB";
+const lvl = p => p >= 90 ? "b" : p >= 75 ? "w" : "";
+const meter = (l, p, t) => `<div class="m"><div class="lbl"><span>${l}</span><b>${t}</b></div><div class="bar"><i class="${lvl(p)}" style="width:${Math.min(100,p)}%"></i></div></div>`;
+function showStats(s){
+  const m = [], memUsed = s.mem.total - s.mem.avail;
+  m.push(meter("CPU", s.cpu, s.cpu + "%" + (s.freq ? " · " + s.freq + " MHz" : "")));
+  m.push(meter("RAM", 100*memUsed/s.mem.total, `${fmtMB(memUsed)} / ${fmtMB(s.mem.total)}`));
+  if (s.swap.total) m.push(meter("Takas", 100*(s.swap.total-s.swap.free)/s.swap.total, `${fmtMB(s.swap.total-s.swap.free)} / ${fmtMB(s.swap.total)}`));
+  if (s.temp !== null) m.push(meter("Sıcaklık", s.temp, s.temp + " °C"));
+  for (const d of s.disks) m.push(meter(d.mount === "/" ? "Disk (SD)" : "Disk " + d.mount, 100*d.used/d.total, `${fmtMB(d.used)} / ${fmtMB(d.total)}`));
+  $("meters").innerHTML = m.join("");
+  const up = s.uptime, f = [`Çalışma: ${Math.floor(up/86400)}g ${Math.floor(up%86400/3600)}s ${Math.floor(up%3600/60)}dk`, `Yük: ${s.load} (${s.cores} çekirdek)`];
+  if (s.clients !== null) f.push(`Bağlı cihaz: ${s.clients}`);
+  if (s.throttled !== null) f.push(s.throttled & 0x1 ? "⚠ Düşük voltaj şu an" : s.throttled & 0x10000 ? "⚠ Açılıştan beri düşük voltaj oldu" : "Güç: sorunsuz");
+  $("facts").innerHTML = f.map(t => `<span class="${t.startsWith("⚠") ? "bad" : ""}">${esc(t)}</span>`).join("");
+  $("model").textContent = s.model;
+  $("sys").hidden = false;
+}
+function pollStats(){
+  fetch("/home/stats.json", {cache:"no-store"}).then(r => r.ok ? r.json() : null).then(s => { if (s) showStats(s); }).catch(() => {});
+}
+pollStats(); setInterval(() => { if (!document.hidden) pollStats(); }, 5000);
+
+/* Yapay zeka asistanı: servis (8081) çalışıyorsa "Sor" kutusu görünür */
+const ASK = location.protocol + "//" + location.hostname + ":8081";
+fetch(ASK + "/status", {cache:"no-store"}).then(r => r.json()).then(s => { if (s.llm) $("ask").hidden = false; }).catch(() => {});
+$("askform").addEventListener("submit", async e => {
+  e.preventDefault();
+  const q = $("aq").value.trim(); if (!q) return;
+  $("aout").textContent = ""; $("asrc").innerHTML = ""; $("astage").textContent = "Gönderiliyor...";
+  try {
+    const r = await fetch(ASK + "/ask", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({q})});
+    const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
+    for (;;) {
+      const {value, done} = await rd.read(); if (done) break;
+      buf += dec.decode(value, {stream:true});
+      let k; while ((k = buf.indexOf("\n\n")) >= 0) {
+        const line = buf.slice(0, k).replace(/^data: /, ""); buf = buf.slice(k + 2);
+        const m = JSON.parse(line);
+        if (m.stage) $("astage").textContent = m.stage;
+        if (m.token) { $("astage").textContent = ""; $("aout").textContent += m.token; }
+        if (m.reset) $("aout").textContent = "";
+        if (m.error) $("aout").textContent = m.error;
+        if (m.sources) $("asrc").innerHTML = m.sources.map(x => `<span><a href="${esc(x.url)}">${esc(x.title)}</a></span>`).join("");
+        if (m.done) $("astage").textContent = "Yapay zeka hata yapabilir. Önemli konularda kaynakları kontrol edin.";
+      }
+    }
+  } catch (err) { $("aout").textContent = "Yapay zeka servisine ulaşılamadı. Normal aramayı kullanın."; $("astage").textContent = ""; }
+});
+
+loadBooks().then(build);
 </script>
 </body>
 </html>
