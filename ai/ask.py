@@ -16,7 +16,7 @@ TOP = int(os.environ.get("TOP", "3"))
 CTX_CHARS = int(os.environ.get("CTX_CHARS", "3500"))
 STOP = set("ve veya ile bir bu şu o için ne nasıl neden nedir nelerdir mı mi mu mü da de ki gibi en çok daha var yok ben sen biz the a an of to in is are how what why do does i my can should and or for on with".split())
 SYSTEM = ("Sen KayaNET adlı çevrimdışı bilgi kutusunun asistanısın. Yalnızca verilen KAYNAK metinlerine dayanarak, "
-          "kısa, net ve adım adım Türkçe cevap ver. Kaynakta bilgi yoksa 'Kaynaklarda bulamadım' de ve uydurma. "
+          "kısa, net ve adım adım Türkçe cevap ver. Kaynak yoksa kısaca bildiğini söyle, emin değilsen 'emin değilim' de, uydurma. "
           "Tıbbi/acil konularda ciddi durumlarda mutlaka 112'yi aramayı hatırlat.")
 
 def get(url, timeout=20):
@@ -101,7 +101,9 @@ class H(BaseHTTPRequestHandler):
             ev({"stage": "Kaynaklar aranıyor..."})
             ctx, src = build_context(q)
             ev({"sources": src})
-            if not ctx: ev({"token": "Kaynaklarda bu konuda bir şey bulamadım."}); return ev({"done": True})
+            if not ctx:
+                ev({"token": "(Çevrimdışı kaynaklarda bulunamadı; modelin genel bilgisiyle cevaplanıyor, doğruluğunu kontrol edin.)\n\n"})
+                ctx = "(kaynak yok)"
             ev({"stage": "Cevap hazırlanıyor (Pi'de ilk kelime biraz sürebilir)..."})
             body = {"stream": True, "temperature": 0.3, "max_tokens": 400,
                     "chat_template_kwargs": {"enable_thinking": False},
