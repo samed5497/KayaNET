@@ -70,6 +70,11 @@
   .cm.a{align-self:flex-start;background:var(--bg);border:1px solid var(--line);border-bottom-left-radius:4px}
   .cm .src{display:block;margin-top:6px;font-size:12px;white-space:normal}.cm .src a{color:var(--acc);text-decoration:underline;margin-right:8px}
   .cm.n{align-self:center;color:var(--mute);font-size:12px;background:none}
+  .ctabs{display:flex;gap:6px;padding:8px 10px 0}.ctabs button{flex:1;border:0;border-radius:10px;padding:8px;font:600 14px system-ui;background:var(--bg);color:var(--mute);cursor:pointer}.ctabs button.on{background:var(--acc2);color:var(--acc)}
+  #ctr{flex:1;display:flex;flex-direction:column;gap:8px;padding:12px;overflow:auto}#ctr[hidden]{display:none}
+  #ctr select,#ctr textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px}#ctr textarea{resize:vertical}
+  #ctr .btn{border:0;border-radius:12px;background:var(--acc);color:#fff;padding:11px;font-weight:700;cursor:pointer}
+  #tout{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:60px;font-size:15px}
   #cform{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line)}
   #cform input{flex:1;min-width:0;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px}
   #cform button{font:inherit;font-weight:700;border:0;border-radius:12px;background:var(--acc);color:#fff;padding:0 16px;cursor:pointer}
@@ -121,7 +126,15 @@
 <button id="cbtn" aria-label="Sohbet">💬 <span>Yapay zekaya sor</span></button>
 <div id="chat" hidden>
   <div class="ch"><b>KayaNET Asistan</b><span id="cstat"></span><button id="cclose" aria-label="Kapat">✕</button></div>
+  <div class="ctabs"><button id="tchat" class="on">Sohbet</button><button id="ttr">Çeviri</button></div>
   <div id="cmsgs" data-kn-skip></div>
+  <div id="ctr" hidden>
+    <select id="tdir"><option value="tr-en">Türkçe → English</option><option value="en-tr">English → Türkçe</option></select>
+    <textarea id="tin" rows="4" placeholder="Metni yaz..."></textarea>
+    <button class="btn" id="tgo">Çevir</button>
+    <div id="tout" data-kn-skip></div>
+    <div id="tnote" class="slogan"></div>
+  </div>
   <form id="cform"><input id="cq" type="text" placeholder="Örn: Kanayan yarayı nasıl durdururum?" autocomplete="off"><button>Gönder</button></form>
 </div>
 
@@ -272,6 +285,18 @@ function checkAI(){ return fetch(ASK + "/status", {cache:"no-store"}).then(r => 
 $("cbtn").onclick = () => { $("chat").hidden = false; $("cbtn").hidden = true; $("cq").focus();
   if (!$("cmsgs").children.length) say("n", L("Sorularını yerel kaynaklardan (Vikipedi, tıp, tamir) bulup cevaplarım. İnternet gerekmez.","I answer from local sources (Wikipedia, medical, repair). No internet needed."));
   checkAI(); };
+function mode(m){ const t = m === "tr"; $("tchat").classList.toggle("on", !t); $("ttr").classList.toggle("on", t);
+  $("cmsgs").hidden = t; $("cform").hidden = t; $("ctr").hidden = !t; }
+$("tchat").onclick = () => mode("chat"); $("ttr").onclick = () => mode("tr");
+$("tgo").onclick = async () => {
+  const q = $("tin").value.trim(); if (!q) return; const [src, tgt] = $("tdir").value.split("-");
+  $("tout").textContent = "…"; $("tnote").textContent = "";
+  try {
+    const r = await fetch("/kn-translate", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({q, source:src, target:tgt})});
+    const d = await r.json(); $("tout").textContent = d.translatedText || d.error || "?";
+    $("tnote").textContent = L("Makine çevirisi, hatalı olabilir.","Machine translation, may contain errors.");
+  } catch (e) { $("tout").textContent = L("Çeviri servisi kurulu değil ya da çalışmıyor.","Translation service is not installed or running."); }
+};
 $("cclose").onclick = () => { $("chat").hidden = true; $("cbtn").hidden = false; };
 $("cform").addEventListener("submit", async e => {
   e.preventDefault();
