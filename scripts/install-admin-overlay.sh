@@ -38,13 +38,11 @@ location = /admin/ {
     alias $ADMIN_DIR/index.html;
     sub_filter '</body>' '$INJECT';
     sub_filter_once on;
-    sub_filter_types text/html;
 }
 location = /admin/index.html {
     alias $ADMIN_DIR/index.html;
     sub_filter '</body>' '$INJECT';
     sub_filter_once on;
-    sub_filter_types text/html;
 }
 EOF
 
