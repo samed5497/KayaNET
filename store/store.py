@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""KayaNET İçerik Mağazası servisi: sade "İçerik Ekle" sayfasının arka ucu. Port 8083.
-KayaNET Content Store service: backend of the simple "Add content" page. Port 8083.
+"""KayaNET İçerik Mağazası servisi: sade "İçerik Ekle" sayfasının arka ucu. Port 8084.
+KayaNET Content Store service: backend of the simple "Add content" page. Port 8084.
 
 - Yalnızca config/content.conf içindeki ZIM'leri indirebilir (başka adres/komut kabul etmez).
   Only ZIMs listed in config/content.conf can be downloaded (no other URL or command accepted).
@@ -17,7 +17,7 @@ REPO = os.environ.get("REPO", os.path.dirname(os.path.dirname(os.path.abspath(__
 CONF = os.path.join(REPO, "config", "content.conf")
 DEST = os.environ.get("DEST", "/library/zims/content")
 PIN_FILE = "/etc/kayanet/pin"
-PORT = int(os.environ.get("PORT", "8083"))
+PORT = int(os.environ.get("PORT", "8084"))
 
 def catalog():
     items = []
