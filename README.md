@@ -109,6 +109,17 @@ Every 6 hours (and 5 minutes after boot) `scripts/disk-health.sh` checks the `/l
 
 Check now: `sudo ./scripts/disk-health.sh`. Disks behind some USB adapters don't report SMART; those checks are then skipped silently.
 
+### Optional: Raspberry Pi 4B with a microSD card only
+
+The default setup targets a Pi 5 with an NVMe SSD. A Pi 4B with a 32 GB microSD card also works (tested with Raspberry Pi OS Lite 64-bit, trixie):
+
+- Skip step 3 (SSD). When `install.sh` warns that `/library` is not a separate disk, confirm to continue. Content is stored on the SD card.
+- Download the small list (about 13 GB) instead of the full one: `sudo ./scripts/download-content.sh config/content-sd.conf`. Leave the full `config/content.conf` for when an SSD is added.
+- On a Pi 4 the SSD goes through a USB 3.0 (blue) port with a UASP SATA/NVMe adapter; the disk is usually `/dev/sda` for `setup-ssd.sh`.
+- Set the Wi-Fi country before the hotspot starts (`sudo raspi-config nonint do_wifi_country <CC>`); otherwise Wi-Fi stays blocked by rfkill.
+- Run `install.sh` inside `tmux`; if the Pi reboots, run it again.
+- `box.lan` only resolves on the Pi's own hotspot. From your home network use the Pi's IP address.
+
 ### Repo layout
 
 ```
@@ -246,6 +257,17 @@ Pi'nin dahili Wi-Fi kartı sadece hotspot için kullanılıyor. Pi'nin geçici o
 - Pi düşük voltajla çalışıyor ya da çalıştı (zayıf güç kaynağı ya da pil diski bozabilir).
 
 Hemen kontrol: `sudo ./scripts/disk-health.sh`. Bazı USB adaptörlerinin arkasındaki diskler SMART bilgisi vermez; o zaman bu kontrol sessizce atlanır.
+
+### İsteğe bağlı: sadece microSD kartlı Raspberry Pi 4B
+
+Varsayılan kurulum NVMe SSD'li Pi 5 içindir. 32 GB microSD kartlı Pi 4B de çalışır (Raspberry Pi OS Lite 64-bit, trixie ile denendi):
+
+- 3. adımı (SSD) atla. `install.sh` `/library` ayrı bir disk değil diye uyarınca devam et; içerik SD karta yazılır.
+- Tam liste yerine küçük listeyi (yaklaşık 13 GB) indir: `sudo ./scripts/download-content.sh config/content-sd.conf`. Tam `config/content.conf` listesini SSD eklenince kullan.
+- Pi 4'te SSD, USB 3.0 (mavi) porta UASP destekli SATA/NVMe adaptörle bağlanır; `setup-ssd.sh` için disk genelde `/dev/sda` olur.
+- Hotspot açılmadan önce Wi-Fi ülkesini ayarla (`sudo raspi-config nonint do_wifi_country <ÜLKE>`); aksi halde Wi-Fi rfkill ile kapalı kalır.
+- `install.sh`'ı `tmux` içinde çalıştır; Pi yeniden başlarsa tekrar çalıştır.
+- `box.lan` adı sadece Pi'nin kendi hotspot ağında çözülür. Ev ağından Pi'nin IP adresini kullan.
 
 ### Repo yapısı
 
