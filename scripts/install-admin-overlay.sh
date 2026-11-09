@@ -31,13 +31,14 @@ mkdir -p "$DST/i18n"
 cp "$REPO/www/home/kn-i18n.js" "$REPO/www/home/kn-bar.js" "$REPO/www/admin/kn-admin.js" "$REPO/www/admin/kn-admin.css" "$DST/"
 cp "$REPO/www/admin/admin-tr.json" "$DST/i18n/"
 
-INJECT='<link rel="stylesheet" href="/home/kn-admin.css"><script src="/home/kn-i18n.js"></script><script src="/home/kn-bar.js"></script><script src="/home/kn-admin.js"></script></body>'
+INJECT='<link rel="stylesheet" href="/home/kn-admin.css"><script charset="utf-8" src="/home/kn-i18n.js"></script><script charset="utf-8" src="/home/kn-bar.js"></script><script charset="utf-8" src="/home/kn-admin.js"></script></body>'
 cat > "$CONF_DIR/$CONF_NAME" <<EOF
 # KayaNET: /admin sayfasına dil katmanını ekler (IIAB dosyaları değişmez)
 location = /admin/ {
     return 302 /admin/index.html;
 }
 location = /admin/index.html {
+    charset utf-8;
     alias $ADMIN_DIR/index.html;
     sub_filter '</body>' '$INJECT';
     sub_filter_once on;
