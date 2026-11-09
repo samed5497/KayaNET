@@ -26,6 +26,16 @@ def get(url, timeout=20):
 def words(s):
     return [w for w in re.findall(r"\w+", s.lower()) if w not in STOP and len(w) > 2]
 
+def to_en(q):
+    """TR soruyu EN'e çevir (İngilizce ZIM'lerde arama için); servis yoksa None."""
+    try:
+        req = urllib.request.Request("http://127.0.0.1:8082/", data=json.dumps({"q": q, "source": "tr", "target": "en"}).encode(),
+                                     headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.loads(r.read().decode()).get("translatedText") or None
+    except Exception as e:
+        print("çeviri hata:", e, file=sys.stderr); return None
+
 def search(q):
     """Kiwix tam metin arama / full-text search. [(başlık, yol)]"""
     kw = " ".join(words(q)) or q
@@ -61,8 +71,13 @@ def best_chunks(text, qw, n=3, size=900):
     return [chunks[i] for i in sorted(ranked) if score(chunks[i]) > 0] or chunks[:1]
 
 def build_context(q):
-    qw, src, ctx, left = words(q), [], [], CTX_CHARS
-    for title, link in search(q):
+    en = to_en(q)
+    qw, src, ctx, left = words(q) + (words(en) if en else []), [], [], CTX_CHARS
+    hits, seen = [], set()
+    for qq in ([en] if en else []) + [q]:
+        for h in search(qq):
+            if h[1] not in seen: seen.add(h[1]); hits.append(h)
+    for title, link in hits[:TOP + 2]:
         try:
             parts = best_chunks(page_text(link), qw, n=2)
         except Exception as e:

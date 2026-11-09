@@ -126,7 +126,7 @@
 <button id="cbtn" aria-label="Sohbet">💬 <span>Yapay zekaya sor</span></button>
 <div id="chat" hidden>
   <div class="ch"><b>KayaNET Asistan</b><span id="cstat"></span><button id="cclose" aria-label="Kapat">✕</button></div>
-  <div class="ctabs"><button id="tchat" class="on">Sohbet</button><button id="ttr">Çeviri</button></div>
+  <div class="ctabs"><button id="tchat" class="on">Sohbet</button><button id="ttr">Çeviri</button><button id="tdoc">Belge</button></div>
   <div id="cmsgs" data-kn-skip></div>
   <div id="ctr" hidden>
     <select id="tdir"><option value="tr-en">Türkçe → English</option><option value="en-tr">English → Türkçe</option></select>
@@ -134,6 +134,14 @@
     <button class="btn" id="tgo">Çevir</button>
     <div id="tout" data-kn-skip></div>
     <div id="tnote" class="slogan"></div>
+  </div>
+  <div id="cdoc" hidden>
+    <select id="ddir"><option value="en-tr">English → Türkçe</option><option value="tr-en">Türkçe → English</option></select>
+    <input type="file" id="dfile" accept=".pdf,.txt,.md,.html,.htm,application/pdf,text/*">
+    <div id="dprog" class="slogan"></div>
+    <div id="dout" data-kn-skip></div>
+    <button class="btn" id="dsave" hidden>Çeviriyi indir (.txt)</button>
+    <div class="slogan">Metin içeren PDF ve metin dosyaları çevrilir. Taranmış (görüntü) PDF desteklenmez.</div>
   </div>
   <form id="cform"><input id="cq" type="text" placeholder="Örn: Kanayan yarayı nasıl durdururum?" autocomplete="off"><button>Gönder</button></form>
 </div>
@@ -285,9 +293,47 @@ function checkAI(){ return fetch(ASK + "/status", {cache:"no-store"}).then(r => 
 $("cbtn").onclick = () => { $("chat").hidden = false; $("cbtn").hidden = true; $("cq").focus();
   if (!$("cmsgs").children.length) say("n", L("Sorularını yerel kaynaklardan (Vikipedi, tıp, tamir) bulup cevaplarım. İnternet gerekmez.","I answer from local sources (Wikipedia, medical, repair). No internet needed."));
   checkAI(); };
-function mode(m){ const t = m === "tr"; $("tchat").classList.toggle("on", !t); $("ttr").classList.toggle("on", t);
-  $("cmsgs").hidden = t; $("cform").hidden = t; $("ctr").hidden = !t; }
-$("tchat").onclick = () => mode("chat"); $("ttr").onclick = () => mode("tr");
+function mode(m){ $("tchat").classList.toggle("on", m==="chat"); $("ttr").classList.toggle("on", m==="tr"); $("tdoc").classList.toggle("on", m==="doc");
+  $("cmsgs").hidden = m!=="chat"; $("cform").hidden = m!=="chat"; $("ctr").hidden = m!=="tr"; $("cdoc").hidden = m!=="doc"; }
+$("tchat").onclick = () => mode("chat"); $("ttr").onclick = () => mode("tr"); $("tdoc").onclick = () => mode("doc");
+/* Belge çevirisi: PDF (pdf.js, yerel) / metin dosyası -> parça parça /kn-translate */
+function loadScript(src){ return new Promise((ok, no) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = no; document.head.appendChild(s); }); }
+async function docText(f){
+  if (/\.pdf$/i.test(f.name) || f.type === "application/pdf") {
+    if (!window.pdfjsLib) await loadScript("/home/vendor/pdf.min.js");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "/home/vendor/pdf.worker.min.js";
+    const pdf = await pdfjsLib.getDocument({data: await f.arrayBuffer()}).promise, pages = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      $("dprog").textContent = L(`PDF okunuyor ${i}/${pdf.numPages}`,`Reading PDF ${i}/${pdf.numPages}`);
+      const c = await (await pdf.getPage(i)).getTextContent(); let line = "", y = null, out = "";
+      for (const it of c.items) { const yy = it.transform[5]; if (y !== null && Math.abs(yy - y) > 2) { out += line.trim() + "\n"; line = ""; } line += it.str + " "; y = yy; }
+      pages.push(out + line.trim());
+    }
+    return pages;
+  }
+  let t = await f.text(); if (/\.html?$/i.test(f.name)) t = new DOMParser().parseFromString(t, "text/html").body.innerText;
+  return [t];
+}
+function chunks(text){ const out = []; let cur = "";
+  for (const p of text.split(/\n+/)) { if (!p.trim()) continue; if ((cur + p).length > 700 && cur) { out.push(cur); cur = ""; } cur += (cur ? "\n" : "") + p; }
+  if (cur) out.push(cur); return out; }
+let DOC_RES = "";
+$("dfile").onchange = async () => {
+  const f = $("dfile").files[0]; if (!f) return; const [src, tgt] = $("ddir").value.split("-");
+  $("dout").textContent = ""; $("dsave").hidden = true; DOC_RES = "";
+  try {
+    const pages = await docText(f), parts = pages.flatMap(chunks);
+    if (!parts.length) { $("dprog").textContent = L("Metin bulunamadı (taranmış PDF olabilir).","No text found (may be a scanned PDF)."); return; }
+    for (let i = 0; i < parts.length; i++) {
+      $("dprog").textContent = L(`Çevriliyor ${i+1}/${parts.length}`,`Translating ${i+1}/${parts.length}`);
+      const r = await fetch("/kn-translate", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({q:parts[i], source:src, target:tgt})});
+      const d = await r.json(); if (!d.translatedText) throw new Error(d.error || "?");
+      DOC_RES += d.translatedText + "\n\n"; $("dout").textContent = DOC_RES;
+    }
+    $("dprog").textContent = L("Bitti. Makine çevirisi, hatalı olabilir.","Done. Machine translation, may contain errors."); $("dsave").hidden = false;
+  } catch (e) { $("dprog").textContent = L("Çeviri yapılamadı (servis ya da dosya sorunu).","Translation failed (service or file problem)."); }
+};
+$("dsave").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([DOC_RES], {type:"text/plain;charset=utf-8"})); a.download = "ceviri.txt"; a.click(); };
 $("tgo").onclick = async () => {
   const q = $("tin").value.trim(); if (!q) return; const [src, tgt] = $("tdir").value.split("-");
   $("tout").textContent = "…"; $("tnote").textContent = "";
