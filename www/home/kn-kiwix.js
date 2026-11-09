@@ -17,6 +17,33 @@
   document.body.style.paddingTop = (bar.offsetHeight + 4) + "px";
   if (framed) bar.style.position = "sticky";
 
+  /* Kütüphane ana sayfası (/kiwix/): kitap açıklamaları Türkçeleşsin (sözlük + yerel çeviri yedeği, önbellekli) */
+  var DICT = {
+    "An Offline Version of Wikisource in Turkish Language": "Vikikaynak'ın Türkçe çevrimdışı sürümü",
+    "An Offline Version of Wikibook in Turkish Language": "Vikikitap'ın Türkçe çevrimdışı sürümü",
+    "An Offline Version of Turkish in Afrikaans Language": "Vikisöz'ün Türkçe çevrimdışı sürümü",
+    "An Offline Version of Wikiquote in Turkish Language": "Vikisöz'ün Türkçe çevrimdışı sürümü"
+  };
+  var RULE = /^An Offline Version of (?:Turkish|Wikiquote)\b.*Language$/;
+  if (/^\/kiwix\/?$/.test(location.pathname)) {
+    var LK = "kn_desc:", ENG = /\b(the|of|in|and|for|with|offline|version|from|to|is|are)\b/i, busyL = false, applying = false;
+    var fixDesc = async function () {
+      if (busyL) return; busyL = true;
+      try {
+        var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), list = [], n;
+        while ((n = w.nextNode())) { var t = n.data.trim(); if (t.length > 20 && t.indexOf(" ") > 0 && ENG.test(t) && !bar.contains(n) && !/^(SCRIPT|STYLE)$/.test(n.parentNode.tagName)) list.push([n, t]); }
+        for (var i = 0; i < list.length; i++) {
+          var node = list[i][0], txt = list[i][1], out = DICT[txt] || (RULE.test(txt) ? "Vikisöz'ün Türkçe çevrimdışı sürümü" : null);
+          if (!out) { try { out = localStorage.getItem(LK + txt); } catch (e) {} }
+          if (!out) { try { out = await xl(txt, "en-tr"); try { localStorage.setItem(LK + txt, out); } catch (e) {} } catch (e) { continue; } }
+          applying = true; node.data = out; applying = false;
+        }
+      } finally { busyL = false; }
+    };
+    var tm; new MutationObserver(function () { if (applying) return; clearTimeout(tm); tm = setTimeout(fixDesc, 400); }).observe(document.body, { childList: true, subtree: true });
+    setTimeout(fixDesc, 600);
+  }
+
   var nodes = [], busy = false, stop = false, on = false, CK = "kn_tc:";
   function collect() {
     var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {

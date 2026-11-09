@@ -20,6 +20,15 @@ location ^~ /kiwix/content/ {
     sub_filter_once on;
     sub_filter '</body>' '<script src="/home/kn-kiwix.js"></script></body>';
 }
+# Kütüphane ana sayfası (kitap kartları) / library home page
+location = /kiwix/ {
+    proxy_pass $UP;
+    proxy_set_header Host \$host;
+    proxy_set_header Accept-Encoding "";
+    sub_filter_types text/html;
+    sub_filter_once on;
+    sub_filter '</body>' '<script src="/home/kn-kiwix.js"></script></body>';
+}
 EOF
 if ! nginx -t 2>/tmp/kn-nginx.err; then cat /tmp/kn-nginx.err >&2; rm -f "$CONF"; echo "geçersiz, geri alındı" >&2; exit 1; fi
 systemctl reload nginx
