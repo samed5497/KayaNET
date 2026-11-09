@@ -78,6 +78,7 @@ fi
 # -------------------------------------------------------------- 3. ana sayfa
 say "3/3 Ana sayfa / homepage"
 "$REPO/scripts/install-homepage.sh"
+"$REPO/scripts/install-admin-overlay.sh" || echo "Admin katmanı kurulamadı (isteğe bağlı) / admin overlay failed (optional)"
 "$REPO/scripts/install-disk-health.sh"
 
 IP=$(hostname -I | awk '{print $1}')

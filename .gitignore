@@ -2,3 +2,4 @@
 __MACOSX/
 *.zip
 Claude outputs/
+__pycache__/

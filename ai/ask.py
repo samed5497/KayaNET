@@ -26,10 +26,20 @@ def get(url, timeout=20):
 def words(s):
     return [w for w in re.findall(r"\w+", s.lower()) if w not in STOP and len(w) > 2]
 
-def search(q):
+def to_en(q):
+    """TR soruyu EN'e çevir (İngilizce ZIM'lerde arama için); servis yoksa None."""
+    try:
+        req = urllib.request.Request("http://127.0.0.1:8082/translate", data=json.dumps({"q": q, "source": "tr", "target": "en"}).encode(),
+                                     headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.loads(r.read().decode()).get("translatedText") or None
+    except Exception as e:
+        print("çeviri hata:", e, file=sys.stderr); return None
+
+def search(q, lang="eng"):
     """Kiwix tam metin arama / full-text search. [(başlık, yol)]"""
     kw = " ".join(words(q)) or q
-    url = f"{KIWIX}/search?pattern={urllib.parse.quote(kw)}&format=xml&pageLength={TOP + 2}"
+    url = f"{KIWIX}/search?pattern={urllib.parse.quote(kw)}&format=xml&pageLength={TOP + 2}&books.filter.lang={lang}"
     out = []
     try:
         root = ET.fromstring(get(url))
@@ -60,9 +70,17 @@ def best_chunks(text, qw, n=3, size=900):
     ranked = sorted(range(len(chunks)), key=lambda i: -score(chunks[i]))[:n]
     return [chunks[i] for i in sorted(ranked) if score(chunks[i]) > 0] or chunks[:1]
 
-def build_context(q):
-    qw, src, ctx, left = words(q), [], [], CTX_CHARS
-    for title, link in search(q):
+def build_context(q, ev=lambda o: None):
+    ev({"stage": "Soru çevriliyor"})
+    en = to_en(q)
+    ev({"stage": "Kaynaklar aranıyor"})
+    qw, src, ctx, left = words(q) + (words(en) if en else []), [], [], CTX_CHARS
+    hits, seen = [], set()
+    for qq, lg in ([(en, "eng")] if en else []) + [(q, "tur")]:
+        for h in search(qq, lg):
+            if h[1] not in seen: seen.add(h[1]); hits.append(h)
+    ev({"stage": "Kaynaklar okunuyor"})
+    for title, link in hits[:TOP + 2]:
         try:
             parts = best_chunks(page_text(link), qw, n=2)
         except Exception as e:
@@ -98,14 +116,13 @@ class H(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/event-stream"); self.send_header("Cache-Control", "no-cache"); self.end_headers()
         def ev(o): self.wfile.write(b"data: " + json.dumps(o, ensure_ascii=False).encode() + b"\n\n"); self.wfile.flush()
         try:
-            ev({"stage": "Kaynaklar aranıyor..."})
-            ctx, src = build_context(q)
+            ctx, src = build_context(q, ev)
             ev({"sources": src})
             if not ctx:
                 ev({"token": "(Çevrimdışı kaynaklarda bulunamadı; modelin genel bilgisiyle cevaplanıyor, doğruluğunu kontrol edin.)\n\n"})
                 ctx = "(kaynak yok)"
-            ev({"stage": "Cevap hazırlanıyor (Pi'de ilk kelime biraz sürebilir)..."})
-            body = {"stream": True, "temperature": 0.3, "max_tokens": 400,
+            ev({"stage": "Cevap yazılıyor"})
+            body = {"stream": True, "temperature": 0.2, "max_tokens": 400,
                     "chat_template_kwargs": {"enable_thinking": False},
                     "messages": [{"role": "system", "content": SYSTEM},
                                  {"role": "user", "content": f"{ctx}\n\nSORU: {q} /no_think"}]}

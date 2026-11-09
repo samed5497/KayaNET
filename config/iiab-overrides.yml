@@ -1,8 +1,8 @@
-# HAS_PrepperDisk: Internet-in-a-Box ayar değişiklikleri
+# KayaNET Prepper Disk: Internet-in-a-Box ayar değişiklikleri
 # install.sh bu satırları /etc/iiab/local_vars.yml içine yazar.
 # Wi-Fi adı (host_ssid) ve şifresi kurulum sırasında sorulur.
 #
-# HAS_PrepperDisk: overrides applied to Internet-in-a-Box's local_vars.yml.
+# KayaNET Prepper Disk: overrides applied to Internet-in-a-Box's local_vars.yml.
 # The Wi-Fi name and password are asked during install.
 
 host_country_code: TR

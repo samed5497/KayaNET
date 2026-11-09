@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KayaNET · İçerik Ekle</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("kn_theme")||"light"}catch(e){document.documentElement.dataset.theme="light"}</script>
+<script src="/home/kn-i18n.js"></script>
+<script src="/home/kn-bar.js"></script>
+<script src="/home/cats.js"></script>
+<style>
+  :root{--bg:#eef3fb;--card:#fff;--ink:#14202e;--mute:#5b6b7c;--line:#e1e6ec;--acc:#0b6bcb;--acc2:#e8f1fc;--ok:#1a9d5b;--warn:#d98a00;--bad:#d33a2c;--shadow:0 1px 2px rgba(20,32,46,.06),0 4px 14px rgba(20,32,46,.05)}
+  html[data-theme=dark]{--bg:#0e141b;--card:#16202b;--ink:#e8eef5;--mute:#93a3b5;--line:#243242;--acc:#4da3ff;--acc2:#16304d;--ok:#3ecf8e;--warn:#f0b429;--bad:#ff6b5e;--shadow:none}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg) radial-gradient(1200px 420px at 50% -120px,rgba(11,107,203,.16),transparent);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  a{color:var(--acc)}
+  .wrap{max-width:900px;margin:0 auto;padding:16px}
+  h1{margin:6px 0 2px;font-size:26px;letter-spacing:-.5px}
+  .sub{color:var(--mute);margin:0 0 14px}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;box-shadow:var(--shadow);margin-bottom:12px}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+  .step{display:flex;gap:10px;align-items:flex-start}.step b{flex:none;width:28px;height:28px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center}
+  .pill{display:inline-block;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600;background:var(--acc2);color:var(--acc);margin:2px 4px 2px 0}
+  .pill.ok{background:rgba(26,157,91,.14);color:var(--ok)}.pill.bad{background:rgba(211,58,44,.14);color:var(--bad)}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  button,input{font:inherit}
+  .btn{border:0;border-radius:12px;padding:10px 16px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--acc),#3d8bff);color:#fff}
+  .btn.g{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  input[type=password],input[type=text]{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:10px;width:130px}
+  h3{margin:18px 2px 8px;font-size:13px;letter-spacing:.8px;text-transform:uppercase;color:var(--mute)}
+  .it{display:flex;gap:12px;align-items:flex-start;padding:10px 4px;border-bottom:1px solid var(--line)}
+  .it:last-child{border:0}
+  .it input{margin-top:5px;width:18px;height:18px}
+  .it .n{font-weight:700}.it .d{color:var(--mute);font-size:14px}
+  .it.dis{opacity:.5}
+  .log{font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;max-height:180px;overflow:auto;background:var(--bg);border-radius:10px;padding:8px;margin-top:8px}
+  .total{position:sticky;bottom:10px;margin-top:12px}
+  nav a{font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav><a href="/home/">← Ana sayfa</a></nav>
+  <h1>İçerik Ekle</h1>
+  <p class="sub">KayaNET'e yeni kitap, harita ve rehber eklemek için üç adım yeter.</p>
+
+  <div class="box steps">
+    <div class="step"><b>1</b><div><strong>İnternete bağla</strong><br><span class="sub">Pi'yi Ethernet ile modeme tak. İndirme bitince kabloyu çıkarabilirsin.</span></div></div>
+    <div class="step"><b>2</b><div><strong>Seç</strong><br><span class="sub">Aşağıdan istediklerini işaretle. Küçük paket tek tıkla seçilir.</span></div></div>
+    <div class="step"><b>3</b><div><strong>İndir</strong><br><span class="sub">Yönetici PIN'ini yaz ve İndir'e bas. İçerikler Kiwix sunucusundan (download.kiwix.org) iner.</span></div></div>
+  </div>
+
+  <div class="box" id="stat"></div>
+
+  <div class="box bar">
+    <button class="btn g" id="small">Küçük paket seç</button>
+    <button class="btn g" id="none">Seçimi temizle</button>
+  </div>
+
+  <div id="list"></div>
+
+  <div class="box total">
+    <div class="bar">
+      <span id="sel">Seçili: 0</span>
+      <span style="flex:1"></span>
+      <input type="password" id="pin" placeholder="Yönetici PIN" inputmode="numeric" autocomplete="off">
+      <button class="btn" id="go" disabled>İndir</button>
+    </div>
+    <div id="msg" class="sub" style="margin:8px 0 0"></div>
+    <div id="log" class="log" hidden></div>
+  </div>
+</div>
+
+<script>
+const API = "/kn-store";  /* nginx köprüsü -> 127.0.0.1:8084 (Pi güvenlik duvarı yalnızca 80/22 açar) */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const L = (tr, en) => KN.lang === "en" ? en : tr;
+let ST = null, CAT = [], SEL = new Set(), ITEMS = [];
+
+const gb = mb => mb >= 1024 ? (mb/1024).toFixed(1) + " GB" : Math.round(mb) + " MB";
+const sizeMB = it => { const m = /([\d.,]+)\s*(GB|MB)/.exec((it.size||"").replace("~","")); return m ? parseFloat(m[1].replace(",",".")) * (m[2]==="GB"?1024:1) : null; };
+
+function build(){
+  const byZim = {}; CAT.forEach(c => byZim[c.prefix] = c);
+  ITEMS = [];
+  for (const c of CATS) for (const i of c.items) if (i.zim) {
+    const cat = CAT.find(x => x.prefix.startsWith(i.zim));
+    if (cat) ITEMS.push({ cat: c.title, name: i.name, desc: i.desc, prefix: cat.prefix, mb: sizeMB(i) ?? cat.mb });
+  }
+  draw();
+}
+function draw(){
+  if (!ST) return;
+  const free = ST.free_mb, done = new Set(ST.installed);
+  const reserve = 1500;
+  let html = "", last = "";
+  for (const it of ITEMS) {
+    if (it.cat !== last) { html += `${last ? "</div>" : ""}<h3>${esc(KN.t(it.cat))}</h3><div class="box">`; last = it.cat; }
+    const have = done.has(it.prefix), big = it.mb && it.mb > free - reserve && !have;
+    html += `<label class="it ${big ? "dis" : ""}"><input type="checkbox" data-p="${esc(it.prefix)}" ${have || big ? "disabled" : ""} ${SEL.has(it.prefix) ? "checked" : ""}>
+      <div><div class="n">${esc(KN.t(it.name))} ${have ? `<span class="pill ok">${L("yüklü","installed")}</span>` : ""}${big ? `<span class="pill bad">${L("yer yetmez","not enough space")}</span>` : ""}<span class="pill">${it.mb ? gb(it.mb) : "—"}</span></div>
+      <div class="d">${esc(KN.t(it.desc))}</div></div></label>`;
+  }
+  if (last) html += "</div>";
+  $("list").innerHTML = html;
+  KN.apply($("list"));
+  count();
+}
+function count(){
+  let mb = 0, n = 0; for (const it of ITEMS) if (SEL.has(it.prefix)) { n++; mb += it.mb || 0; }
+  $("sel").textContent = L(`Seçili: ${n} içerik · ~${gb(mb)}`, `Selected: ${n} items · ~${gb(mb)}`);
+  $("go").disabled = !n || !!(ST && ST.job.running);
+}
+function status(){
+  fetch(API + "/status", {cache:"no-store"}).then(r => r.json()).then(s => {
+    ST = s;
+    $("stat").innerHTML = `<span class="pill ${s.internet ? "ok" : "bad"}">${s.internet ? L("İnternet var","Internet OK") : L("İnternet yok (Ethernet kablosunu tak)","No internet (plug in Ethernet)")}</span>
+      <span class="pill">${L("Boş alan","Free space")}: ${gb(s.free_mb)}</span>
+      <span class="pill">${L("Yüklü içerik","Installed")}: ${s.installed.length}</span>`;
+    const j = s.job;
+    $("log").hidden = !(j.running || j.log.length);
+    $("log").textContent = j.log.join("\n");
+    if (j.running) $("msg").textContent = L("İndiriliyor, sayfayı kapatabilirsin; arka planda devam eder.","Downloading; you can close this page, it continues in the background.");
+    else if (j.rc === 0 && j.started) $("msg").textContent = L("Bitti. Ana sayfayı yenile; yeni içerikler görünür.","Done. Refresh the home page to see the new content.");
+    else if (j.rc) $("msg").textContent = L("Bazı indirmeler tamamlanamadı; ayrıntı aşağıda. Tekrar basarsan kaldığı yerden devam eder.","Some downloads did not finish; details below. Press again to resume.");
+    draw();
+  }).catch(() => { $("stat").innerHTML = `<span class="pill bad">${L("İçerik servisi çalışmıyor","Content service is not running")}</span>`; });
+}
+$("list").addEventListener("change", e => { const p = e.target.dataset.p; if (!p) return; e.target.checked ? SEL.add(p) : SEL.delete(p); count(); });
+$("small").onclick = () => { if (!ST) return; const done = new Set(ST.installed);
+  ITEMS.forEach(i => { if (!done.has(i.prefix) && (!i.mb || i.mb <= 700)) SEL.add(i.prefix); }); draw(); };
+$("none").onclick = () => { SEL.clear(); draw(); };
+$("go").onclick = async () => {
+  $("msg").textContent = "…";
+  try {
+    const r = await fetch(API + "/download", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({pin:$("pin").value, items:[...SEL]})});
+    const d = await r.json();
+    if (!r.ok) { $("msg").textContent = d.error || "Hata"; return; }
+    SEL.clear(); $("msg").textContent = L("İndirme başladı.","Download started."); status();
+  } catch (e) { $("msg").textContent = L("İçerik servisine ulaşılamadı.","Could not reach the content service."); }
+};
+KN.init({ base:"tr", dict:"/home/i18n/home-en.json", titleOf: l => l === "en" ? "KayaNET · Add Content" : "KayaNET · İçerik Ekle", onChange: () => { draw(); if (ST) status(); } });
+fetch(API + "/catalog").then(r => r.json()).then(c => { CAT = c; build(); status(); }).catch(status);
+setInterval(() => { if (!document.hidden) status(); }, 4000);
+</script>
+</body>
+</html>

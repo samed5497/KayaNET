@@ -1,0 +1,12 @@
+[Unit]
+Description=KayaNET çevrimdışı çeviri / offline translate (Argos)
+After=network.target
+
+[Service]
+User=@USER@
+ExecStart=@HOME@/argos-venv/bin/python @HOME@/argos-service/server.py
+Restart=on-failure
+MemoryMax=700M
+
+[Install]
+WantedBy=multi-user.target
