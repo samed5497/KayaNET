@@ -36,10 +36,10 @@ def to_en(q):
     except Exception as e:
         print("çeviri hata:", e, file=sys.stderr); return None
 
-def search(q):
+def search(q, lang="eng"):
     """Kiwix tam metin arama / full-text search. [(başlık, yol)]"""
     kw = " ".join(words(q)) or q
-    url = f"{KIWIX}/search?pattern={urllib.parse.quote(kw)}&format=xml&pageLength={TOP + 2}"
+    url = f"{KIWIX}/search?pattern={urllib.parse.quote(kw)}&format=xml&pageLength={TOP + 2}&books.filter.lang={lang}"
     out = []
     try:
         root = ET.fromstring(get(url))
@@ -74,8 +74,8 @@ def build_context(q):
     en = to_en(q)
     qw, src, ctx, left = words(q) + (words(en) if en else []), [], [], CTX_CHARS
     hits, seen = [], set()
-    for qq in ([en] if en else []) + [q]:
-        for h in search(qq):
+    for qq, lg in ([(en, "eng")] if en else []) + [(q, "tur")]:
+        for h in search(qq, lg):
             if h[1] not in seen: seen.add(h[1]); hits.append(h)
     for title, link in hits[:TOP + 2]:
         try:
@@ -120,7 +120,7 @@ class H(BaseHTTPRequestHandler):
                 ev({"token": "(Çevrimdışı kaynaklarda bulunamadı; modelin genel bilgisiyle cevaplanıyor, doğruluğunu kontrol edin.)\n\n"})
                 ctx = "(kaynak yok)"
             ev({"stage": "Cevap hazırlanıyor (Pi'de ilk kelime biraz sürebilir)..."})
-            body = {"stream": True, "temperature": 0.3, "max_tokens": 400,
+            body = {"stream": True, "temperature": 0.2, "max_tokens": 400,
                     "chat_template_kwargs": {"enable_thinking": False},
                     "messages": [{"role": "system", "content": SYSTEM},
                                  {"role": "user", "content": f"{ctx}\n\nSORU: {q} /no_think"}]}
