@@ -14,7 +14,7 @@ if [ -f "$DST/index.html" ] && [ ! -f "$DST/index.html.iiab-original" ]; then
 fi
 cp "$SRC/index.html" "$SRC/acil.html" "$DST/"
 mkdir -p "$DST/i18n" "$DST/vendor"
-cp "$SRC/kn-i18n.js" "$SRC/kn-bar.js" "$SRC/cats.js" "$SRC/icerik.html" "$SRC/ayarlar.html" "$DST/"
+cp "$SRC/kn-i18n.js" "$SRC/kn-bar.js" "$SRC/kn-kiwix.js" "$SRC/cats.js" "$SRC/icerik.html" "$SRC/ayarlar.html" "$DST/"
 cp "$SRC"/i18n/*.json "$DST/i18n/"
 cp "$SRC"/vendor/* "$DST/vendor/"
 echo "Ana sayfa kuruldu / homepage installed: http://box.lan/home"
@@ -30,3 +30,4 @@ echo "Sistem bilgisi servisi çalışıyor / stats service running: has-stats.se
 # İçerik Ekle servisi + PIN / content store service + PIN
 "$REPO/scripts/install-store.sh"
 "$REPO/scripts/install-bridges.sh"
+"$REPO/scripts/install-kiwix-overlay.sh"
