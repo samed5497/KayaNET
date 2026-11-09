@@ -44,6 +44,13 @@
     setTimeout(fixDesc, 600);
   }
 
+  /* PDF bağlantıları indirmesin: yerleşik görüntüleyicide açılsın */
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[href]"); if (!a || e.defaultPrevented || e.ctrlKey || e.metaKey) return;
+    var u; try { u = new URL(a.href, location.href); } catch (x) { return; }
+    if (u.origin === location.origin && /\.pdf$/i.test(u.pathname)) { e.preventDefault(); location.href = "/home/pdf.html?src=" + encodeURIComponent(u.pathname + u.search); }
+  }, true);
+
   var nodes = [], busy = false, stop = false, on = false, CK = "kn_tc:";
   function collect() {
     var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {

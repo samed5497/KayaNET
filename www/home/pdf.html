@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KayaNET · PDF Görüntüleyici</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("kn_theme")||"light"}catch(e){document.documentElement.dataset.theme="light"}</script>
+<style>
+  :root{--bg:#e9eef5;--card:#fff;--ink:#14202e;--line:#d5dce5;--acc:#0b6bcb}
+  html[data-theme=dark]{--bg:#0e141b;--card:#16202b;--ink:#e8eef5;--line:#243242;--acc:#4da3ff}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,sans-serif}
+  #tb{position:sticky;top:0;z-index:10;display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 10px;background:var(--acc);color:#fff}
+  #tb button,#tb a,#tb input{border:0;border-radius:8px;padding:7px 11px;font:600 14px system-ui;background:#fff;color:#0b6bcb;text-decoration:none;cursor:pointer}
+  #tb input{width:56px;text-align:center;cursor:text}#tb .sp{flex:1}#tb span{font-weight:500}
+  #pages{display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px}
+  .pg{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.25);max-width:100%}.pg canvas{display:block;width:100%;height:auto}
+  #tr{position:fixed;left:0;right:0;bottom:0;max-height:45vh;overflow:auto;background:var(--card);border-top:2px solid var(--acc);padding:12px 16px;white-space:pre-wrap;box-shadow:0 -6px 20px rgba(0,0,0,.3)}
+  #tr[hidden]{display:none}#msg{padding:30px;text-align:center}
+</style>
+</head>
+<body>
+<div id="tb">
+  <button id="back">←</button><a href="/home/">KayaNET</a>
+  <button id="prev">◀</button><input id="pn" type="number" min="1" value="1"><span id="pc">/ ?</span><button id="next">▶</button>
+  <button id="zo">−</button><button id="zi">+</button>
+  <span class="sp"></span>
+  <button id="tbtn">🌐 Bu sayfayı çevir</button><a id="dl" download>⬇ İndir</a>
+</div>
+<div id="msg">PDF yükleniyor…</div>
+<div id="pages"></div>
+<div id="tr" hidden></div>
+<script src="/home/vendor/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "/home/vendor/pdf.worker.min.js";
+const $ = id => document.getElementById(id);
+const src = new URLSearchParams(location.search).get("src");
+let pdf, scale = 1, cur = 1;
+$("back").onclick = () => history.length > 1 ? history.back() : location.href = "/home/";
+if (!src || !/^\/[^\/]/.test(src)) $("msg").textContent = "Geçersiz PDF adresi.";
+else {
+  $("dl").href = src;
+  pdfjsLib.getDocument({url: src}).promise.then(d => { pdf = d; $("msg").hidden = true; $("pc").textContent = "/ " + d.numPages; $("pn").max = d.numPages; build(); })
+    .catch(() => { $("msg").textContent = "PDF açılamadı. Dosya bozuk ya da bulunamadı."; });
+}
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) draw(e.target); else if (e.target.__done) { e.target.__done = false; e.target.querySelector("canvas").width = 0; } }), {rootMargin: "600px"});
+function build(){
+  const box = $("pages"); box.innerHTML = "";
+  for (let i = 1; i <= pdf.numPages; i++) { const d = document.createElement("div"); d.className = "pg"; d.dataset.p = i; d.style.width = Math.min(innerWidth - 24, 900 * scale) + "px"; d.style.minHeight = "300px"; d.innerHTML = "<canvas></canvas>"; box.appendChild(d); io.observe(d); }
+}
+async function draw(d){
+  if (d.__done || d.__busy) return; d.__busy = true;
+  const page = await pdf.getPage(+d.dataset.p), w = parseFloat(d.style.width), vp0 = page.getViewport({scale: 1}), k = (w / vp0.width) * Math.min(2, devicePixelRatio || 1), vp = page.getViewport({scale: k});
+  const c = d.querySelector("canvas"); c.width = vp.width; c.height = vp.height; d.style.minHeight = "";
+  await page.render({canvasContext: c.getContext("2d"), viewport: vp}).promise; d.__done = true; d.__busy = false;
+}
+function go(n){ n = Math.max(1, Math.min(pdf.numPages, n)); cur = n; const el = document.querySelector(`.pg[data-p="${n}"]`); if (el) el.scrollIntoView(); $("pn").value = n; }
+$("prev").onclick = () => go(cur - 1); $("next").onclick = () => go(cur + 1); $("pn").onchange = () => go(+$("pn").value || 1);
+$("zi").onclick = () => { scale = Math.min(3, scale * 1.25); build(); go(cur); }; $("zo").onclick = () => { scale = Math.max(.4, scale / 1.25); build(); go(cur); };
+addEventListener("scroll", () => { let best = cur, bd = 1e9; document.querySelectorAll(".pg").forEach(e => { const r = e.getBoundingClientRect(), dd = Math.abs(r.top - 60); if (dd < bd) { bd = dd; best = +e.dataset.p; } }); if (best !== cur) { cur = best; $("pn").value = cur; } }, {passive: true});
+addEventListener("keydown", e => { if (!pdf || e.target.tagName === "INPUT") return; const k = e.key;
+  if (k === "PageDown" || k === "ArrowRight") go(cur + 1); else if (k === "PageUp" || k === "ArrowLeft") go(cur - 1); else if (k === "+" || k === "=") $("zi").click(); else if (k === "-") $("zo").click(); else if (k === "Home") go(1); else if (k === "End") go(pdf.numPages); });
+/* Bu sayfayı çevir: metin katmanı -> yerel /kn-translate (internetsiz) */
+$("tbtn").onclick = async () => {
+  const t = $("tr"); if (!t.hidden) { t.hidden = true; return; } t.hidden = false; t.textContent = "Okunuyor…";
+  try {
+    const c = await (await pdf.getPage(cur)).getTextContent(); let line = "", y = null, out = [];
+    for (const it of c.items) { const yy = it.transform[5]; if (y !== null && Math.abs(yy - y) > 2) { out.push(line.trim()); line = ""; } line += it.str + " "; y = yy; } out.push(line.trim());
+    const txt = out.filter(Boolean).join("\n"); if (!txt) { t.textContent = "Bu sayfada metin yok (taranmış sayfa olabilir)."; return; }
+    const parts = []; let buf = ""; for (const l of txt.split("\n")) { if ((buf + l).length > 700 && buf) { parts.push(buf); buf = ""; } buf += (buf ? "\n" : "") + l; } if (buf) parts.push(buf);
+    const lang = /[ğüşıöçĞÜŞİÖÇ]/.test(txt) ? "tr-en" : "en-tr", [s, g] = lang.split("-"); let res = "";
+    for (let i = 0; i < parts.length; i++) { t.textContent = (res || "") + `\n⏳ Çevriliyor ${i+1}/${parts.length}…`;
+      const r = await fetch("/kn-translate", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({q:parts[i], source:s, target:g})}); const j = await r.json(); if (!j.translatedText) throw 0; res += j.translatedText + "\n\n"; }
+    t.textContent = res + "(Makine çevirisi, hatalı olabilir. Kapatmak için tekrar bas.)";
+  } catch (e) { t.textContent = "Çeviri yapılamadı."; }
+};
+</script>
+</body>
+</html>
