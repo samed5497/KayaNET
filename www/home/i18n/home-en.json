@@ -122,5 +122,10 @@
  "Yönetim Paneli": "Admin Panel",
  "Belge": "Document",
  "Çeviriyi indir (.txt)": "Download translation (.txt)",
- "Metin içeren PDF ve metin dosyaları çevrilir. Taranmış (görüntü) PDF desteklenmez.": "Text-based PDFs and text files are translated. Scanned (image) PDFs are not supported."
+ "Metin içeren PDF ve metin dosyaları çevrilir. Taranmış (görüntü) PDF desteklenmez.": "Text-based PDFs and text files are translated. Scanned (image) PDFs are not supported.",
+ "Düşünüyor": "Thinking",
+ "Soru çevriliyor": "Translating question",
+ "Kaynaklar aranıyor": "Searching sources",
+ "Kaynaklar okunuyor": "Reading sources",
+ "Cevap yazılıyor": "Writing answer"
 }

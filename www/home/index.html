@@ -71,7 +71,11 @@
   .cm .src{display:block;margin-top:6px;font-size:12px;white-space:normal}.cm .src a{color:var(--acc);text-decoration:underline;margin-right:8px}
   .cm.n{align-self:center;color:var(--mute);font-size:12px;background:none}
   .ctabs{display:flex;gap:6px;padding:8px 10px 0}.ctabs button{flex:1;border:0;border-radius:10px;padding:8px;font:600 14px system-ui;background:var(--bg);color:var(--mute);cursor:pointer}.ctabs button.on{background:var(--acc2);color:var(--acc)}
-  #ctr{flex:1;display:flex;flex-direction:column;gap:8px;padding:12px;overflow:auto}#ctr[hidden]{display:none}
+  #cmsgs[hidden],#cform[hidden],#cdoc[hidden]{display:none!important}
+  #cdoc{flex:1;display:flex;flex-direction:column;gap:8px;padding:12px;overflow:auto}#cdoc select,#cdoc input[type=file]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px}
+  #dout{white-space:pre-wrap;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:40px}#dout:empty{display:none}
+  #tout{white-space:pre-wrap;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px}#tout:empty{display:none}
+  #ctr{flex:1;display:flex;flex-direction:column;gap:8px;padding:12px;overflow:auto}#ctr[hidden]{display:none!important}
   #ctr select,#ctr textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px}#ctr textarea{resize:vertical}
   #ctr .btn{border:0;border-radius:12px;background:var(--acc);color:#fff;padding:11px;font-weight:700;cursor:pointer}
   #tout{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:60px;font-size:15px}
@@ -350,7 +354,9 @@ $("cform").addEventListener("submit", async e => {
   $("cq").value = ""; say("u", q);
   if (AI_UP === null) await checkAI();
   if (!AI_UP) { say("a", L("Yapay zeka servisi şu an kurulu ya da çalışır durumda değil. Üstteki arama kutusunu kullanabilirsin.","The AI service is not installed or running. You can use the search box above.")); return; }
-  const out = say("a", "…"); let first = true;
+  const out = say("a", "…"); let first = true, t0 = Date.now(), stg = "";
+  const STEPS = ["Soru çevriliyor","Kaynaklar aranıyor","Kaynaklar okunuyor","Cevap yazılıyor"];
+  const tick = setInterval(() => { if (first) out.textContent = "⏳ " + KN.t(stg || "Düşünüyor") + "… " + Math.round((Date.now()-t0)/1000) + " sn"; }, 500);
   try {
     const r = await fetch(ASK + "/ask", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({q})});
     const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
@@ -360,16 +366,16 @@ $("cform").addEventListener("submit", async e => {
       let k; while ((k = buf.indexOf("\n\n")) >= 0) {
         const line = buf.slice(0, k).replace(/^data: /, ""); buf = buf.slice(k + 2);
         const m = JSON.parse(line);
-        if (m.stage && first) out.textContent = m.stage;
+        if (m.stage) stg = m.stage;
         if (m.token) { if (first) { out.textContent = ""; first = false; } out.textContent += m.token; }
         if (m.reset) out.textContent = "";
-        if (m.error) out.textContent = m.error;
+        if (m.error) { clearInterval(tick); first = false; out.textContent = m.error; }
         if (m.sources && m.sources.length) { const s2 = document.createElement("span"); s2.className = "src"; s2.innerHTML = m.sources.map(x => `<a href="${esc(x.url)}">${esc(x.title)}</a>`).join(""); out.dataset.src = "1"; out.__src = s2; }
-        if (m.done) { if (out.__src) out.appendChild(out.__src); }
+        if (m.done) { clearInterval(tick); if (out.__src) out.appendChild(out.__src); }
         $("cmsgs").scrollTop = 1e9;
       }
     }
-  } catch (err) { out.textContent = KN.t("Yapay zeka servisine ulaşılamadı. Normal aramayı kullanın."); }
+  } catch (err) { clearInterval(tick); out.textContent = KN.t("Yapay zeka servisine ulaşılamadı. Normal aramayı kullanın."); }
 });
 
 /* Dil: TR/EN. Sayfa metni Türkçe yazılı, İngilizce çeviri /home/i18n/home-en.json içinde. */
