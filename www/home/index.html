@@ -4,13 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KayaNET</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("kn_theme")||"light"}catch(e){document.documentElement.dataset.theme="light"}</script>
 <script src="/home/kn-i18n.js"></script>
 <script src="/home/kn-bar.js"></script>
 <style>
-  :root{--bg:#f4f6f9;--card:#fff;--ink:#14202e;--mute:#5b6b7c;--line:#e1e6ec;--acc:#0b6bcb;--acc2:#e8f1fc;--ok:#1a9d5b;--warn:#d98a00;--bad:#d33a2c;--shadow:0 1px 2px rgba(20,32,46,.06),0 4px 14px rgba(20,32,46,.05)}
-  @media (prefers-color-scheme:dark){:root{--bg:#0e141b;--card:#16202b;--ink:#e8eef5;--mute:#93a3b5;--line:#243242;--acc:#4da3ff;--acc2:#16304d;--ok:#3ecf8e;--warn:#f0b429;--bad:#ff6b5e;--shadow:none}}
+  :root{--bg:#eef3fb;--card:#fff;--ink:#14202e;--mute:#5b6b7c;--line:#e1e6ec;--acc:#0b6bcb;--acc2:#e8f1fc;--ok:#1a9d5b;--warn:#d98a00;--bad:#d33a2c;--shadow:0 1px 2px rgba(20,32,46,.06),0 4px 14px rgba(20,32,46,.05)}
+  html[data-theme=dark]{--bg:#0e141b;--card:#16202b;--ink:#e8eef5;--mute:#93a3b5;--line:#243242;--acc:#4da3ff;--acc2:#16304d;--ok:#3ecf8e;--warn:#f0b429;--bad:#ff6b5e;--shadow:none}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  body{margin:0;background:var(--bg) radial-gradient(1200px 420px at 50% -120px,rgba(11,107,203,.16),transparent);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   a{color:inherit;text-decoration:none}
   .wrap{max-width:1040px;margin:0 auto;padding:16px}
   header{padding-right:96px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
@@ -22,9 +23,9 @@
   .search{display:flex;gap:8px;flex-wrap:wrap;background:var(--card);padding:10px;border-radius:16px;box-shadow:var(--shadow);border:1px solid var(--line)}
   .search input,.search select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px}
   .search input{flex:1 1 220px;min-width:0}.search select{flex:0 1 200px;max-width:100%}
-  .search button{font:inherit;font-weight:700;background:var(--acc);color:#fff;border:0;border-radius:10px;padding:12px 22px;cursor:pointer}
+  .search button{font:inherit;font-weight:700;background:linear-gradient(135deg,var(--acc),#3d8bff);color:#fff;border:0;border-radius:10px;padding:12px 22px;cursor:pointer}
   .alert{background:#fff4e0;color:#7a4b00;border:1px solid #f0c36a;border-radius:12px;padding:10px 14px;margin-top:12px;font-size:14px}
-  @media (prefers-color-scheme:dark){.alert{background:#3a2c0d;color:#ffd98a;border-color:#6b5217}}
+  html[data-theme=dark] .alert{background:#3a2c0d;color:#ffd98a;border-color:#6b5217}
   .sys{margin:14px 0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
   .sys h2{margin:0 0 10px;font-size:13px;letter-spacing:.8px;text-transform:uppercase;color:var(--mute);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
   .sys h2 span{text-transform:none;letter-spacing:0;font-weight:400}
@@ -42,7 +43,7 @@
   .chips button.on{background:var(--acc);border-color:var(--acc);color:#fff}
   h3{margin:18px 2px 8px;font-size:13px;letter-spacing:.8px;text-transform:uppercase;color:var(--mute)}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
-  .card{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);transition:transform .1s,border-color .1s}
+  .card{display:block;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow);transition:transform .1s,border-color .1s}
   a.card:hover{transform:translateY(-2px);border-color:var(--acc)}
   .card .n{font-weight:700;font-size:16px;display:flex;justify-content:space-between;gap:8px}
   .card .d{color:var(--mute);font-size:14px;margin:4px 0 8px}
@@ -56,6 +57,22 @@
   .dv{display:flex;gap:10px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13px}
   .dv i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--ok)}.dv.off i{background:var(--mute)}.dv.off{opacity:.65}
   .dv b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dv small{color:var(--mute)}
+  #cbtn{position:fixed;right:18px;bottom:18px;z-index:9000;border:0;border-radius:999px;padding:14px 18px;font:700 15px system-ui;color:#fff;background:linear-gradient(135deg,var(--acc),#3d8bff);box-shadow:0 8px 24px rgba(11,107,203,.4);cursor:pointer}
+  #chat{position:fixed;right:18px;bottom:18px;z-index:9001;width:min(400px,calc(100vw - 24px));height:min(560px,calc(100vh - 100px));display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.28);overflow:hidden}
+  #chat[hidden]{display:none}
+  #chat .ch{display:flex;align-items:center;gap:8px;padding:12px 14px;background:linear-gradient(135deg,var(--acc),#3d8bff);color:#fff}
+  #chat .ch b{flex:1}#chat .ch span{font-size:12px;opacity:.85}
+  #chat .ch button{border:0;background:rgba(255,255,255,.2);color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer}
+  #cmsgs{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+  .cm{max-width:88%;padding:9px 12px;border-radius:14px;white-space:pre-wrap;font-size:14px;line-height:1.45}
+  .cm.u{align-self:flex-end;background:var(--acc);color:#fff;border-bottom-right-radius:4px}
+  .cm.a{align-self:flex-start;background:var(--bg);border:1px solid var(--line);border-bottom-left-radius:4px}
+  .cm .src{display:block;margin-top:6px;font-size:12px;white-space:normal}.cm .src a{color:var(--acc);text-decoration:underline;margin-right:8px}
+  .cm.n{align-self:center;color:var(--mute);font-size:12px;background:none}
+  #cform{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line)}
+  #cform input{flex:1;min-width:0;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px}
+  #cform button{font:inherit;font-weight:700;border:0;border-radius:12px;background:var(--acc);color:#fff;padding:0 16px;cursor:pointer}
+  @media (max-width:560px){#cbtn span{display:none}}
   footer{text-align:center;color:var(--mute);font-size:12px;margin:26px 0 8px}
 </style>
 </head>
@@ -72,17 +89,6 @@
     <button>Ara</button>
   </form>
   <div id="disk"></div>
-
-  <section class="sys ask" id="ask" hidden>
-    <h2>Sor <span>yerel yapay zeka, kaynaklarla cevaplar</span></h2>
-    <form class="search" id="askform" style="box-shadow:none;border:0;padding:0">
-      <input type="text" id="aq" placeholder="Örn: Kanayan yarayı nasıl durdururum?" autocomplete="off">
-      <button>Sor</button>
-    </form>
-    <div id="astage" class="slogan" style="margin-top:8px"></div>
-    <div id="aout" style="white-space:pre-wrap;margin-top:8px"></div>
-    <div id="asrc" class="facts"></div>
-  </section>
 
   <section class="sys" id="sys" hidden>
     <h2>Sistem <span id="model"></span></h2>
@@ -108,6 +114,14 @@
   <div class="chips" id="chips"></div>
   <div id="list"></div>
   <footer>KayaNET &middot; CODLAI Teknoloji AŞ. &middot; <span>İçerikler: Wikipedia, OpenStreetMap, Kiwix, ilgili lisanslar altında</span></footer>
+</div>
+
+
+<button id="cbtn" aria-label="Sohbet">💬 <span>Yapay zekaya sor</span></button>
+<div id="chat" hidden>
+  <div class="ch"><b>KayaNET Asistan</b><span id="cstat"></span><button id="cclose" aria-label="Kapat">✕</button></div>
+  <div id="cmsgs" data-kn-skip></div>
+  <form id="cform"><input id="cq" type="text" placeholder="Örn: Kanayan yarayı nasıl durdururum?" autocomplete="off"><button>Gönder</button></form>
 </div>
 
 <script>
@@ -294,13 +308,23 @@ function pollDevices(){
 pollDevices(); setInterval(() => { if (!document.hidden) pollDevices(); }, 7000);
 pollStats(); setInterval(() => { if (!document.hidden) pollStats(); }, 5000);
 
-/* Yapay zeka asistanı: servis (8081) çalışıyorsa "Sor" kutusu görünür */
+/* Sohbet balonu: yapay zeka servisi (8081) çalışıyorsa cevap verir, yoksa kurulu olmadığını söyler. */
 const ASK = location.protocol + "//" + location.hostname + ":8081";
-fetch(ASK + "/status", {cache:"no-store"}).then(r => r.json()).then(s => { if (s.llm) $("ask").hidden = false; }).catch(() => {});
-$("askform").addEventListener("submit", async e => {
+let AI_UP = null;
+function say(cls, text){ const d = document.createElement("div"); d.className = "cm " + cls; d.textContent = text; $("cmsgs").appendChild(d); $("cmsgs").scrollTop = 1e9; return d; }
+function checkAI(){ return fetch(ASK + "/status", {cache:"no-store"}).then(r => r.json()).then(s => { AI_UP = !!s.llm; }).catch(() => { AI_UP = false; })
+  .then(() => { $("cstat").textContent = AI_UP ? L("çevrimiçi (yerel)","online (local)") : L("kurulu değil","not installed"); }); }
+$("cbtn").onclick = () => { $("chat").hidden = false; $("cbtn").hidden = true; $("cq").focus();
+  if (!$("cmsgs").children.length) say("n", L("Sorularını yerel kaynaklardan (Vikipedi, tıp, tamir) bulup cevaplarım. İnternet gerekmez.","I answer from local sources (Wikipedia, medical, repair). No internet needed."));
+  checkAI(); };
+$("cclose").onclick = () => { $("chat").hidden = true; $("cbtn").hidden = false; };
+$("cform").addEventListener("submit", async e => {
   e.preventDefault();
-  const q = $("aq").value.trim(); if (!q) return;
-  $("aout").textContent = ""; $("asrc").innerHTML = ""; $("astage").textContent = KN.t("Gönderiliyor...");
+  const q = $("cq").value.trim(); if (!q) return;
+  $("cq").value = ""; say("u", q);
+  if (AI_UP === null) await checkAI();
+  if (!AI_UP) { say("a", L("Yapay zeka servisi şu an kurulu ya da çalışır durumda değil. Üstteki arama kutusunu kullanabilirsin.","The AI service is not installed or running. You can use the search box above.")); return; }
+  const out = say("a", "…"); let first = true;
   try {
     const r = await fetch(ASK + "/ask", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({q})});
     const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
@@ -310,15 +334,16 @@ $("askform").addEventListener("submit", async e => {
       let k; while ((k = buf.indexOf("\n\n")) >= 0) {
         const line = buf.slice(0, k).replace(/^data: /, ""); buf = buf.slice(k + 2);
         const m = JSON.parse(line);
-        if (m.stage) $("astage").textContent = m.stage;
-        if (m.token) { $("astage").textContent = ""; $("aout").textContent += m.token; }
-        if (m.reset) $("aout").textContent = "";
-        if (m.error) $("aout").textContent = m.error;
-        if (m.sources) $("asrc").innerHTML = m.sources.map(x => `<span><a href="${esc(x.url)}">${esc(x.title)}</a></span>`).join("");
-        if (m.done) $("astage").textContent = KN.t("Yapay zeka hata yapabilir. Önemli konularda kaynakları kontrol edin.");
+        if (m.stage && first) out.textContent = m.stage;
+        if (m.token) { if (first) { out.textContent = ""; first = false; } out.textContent += m.token; }
+        if (m.reset) out.textContent = "";
+        if (m.error) out.textContent = m.error;
+        if (m.sources && m.sources.length) { const s2 = document.createElement("span"); s2.className = "src"; s2.innerHTML = m.sources.map(x => `<a href="${esc(x.url)}">${esc(x.title)}</a>`).join(""); out.dataset.src = "1"; out.__src = s2; }
+        if (m.done) { if (out.__src) out.appendChild(out.__src); }
+        $("cmsgs").scrollTop = 1e9;
       }
     }
-  } catch (err) { $("aout").textContent = KN.t("Yapay zeka servisine ulaşılamadı. Normal aramayı kullanın."); $("astage").textContent = ""; }
+  } catch (err) { out.textContent = KN.t("Yapay zeka servisine ulaşılamadı. Normal aramayı kullanın."); }
 });
 
 /* Dil: TR/EN. Sayfa metni Türkçe yazılı, İngilizce çeviri /home/i18n/home-en.json içinde. */

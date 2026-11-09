@@ -1,7 +1,7 @@
 /* KayaNET Admin Console görünümü: IIAB Bootstrap 3 sayfasının üzerine modern tema (dosyaları değiştirmeden).
    Modern theme layered over the IIAB Bootstrap 3 page (no IIAB files modified). */
 :root{--bg:#f4f6f9;--card:#fff;--ink:#14202e;--mute:#5b6b7c;--line:#e1e6ec;--acc:#0b6bcb;--acc2:#e8f1fc;--ok:#1a9d5b;--bad:#d33a2c}
-@media (prefers-color-scheme:dark){:root{--bg:#0e141b;--card:#16202b;--ink:#e8eef5;--mute:#93a3b5;--line:#243242;--acc:#4da3ff;--acc2:#16304d;--ok:#3ecf8e;--bad:#ff6b5e}}
+html[data-theme=dark]{--bg:#0e141b;--card:#16202b;--ink:#e8eef5;--mute:#93a3b5;--line:#243242;--acc:#4da3ff;--acc2:#16304d;--ok:#3ecf8e;--bad:#ff6b5e}
 html[lang=tr] [data-kn-l=en],html[lang=en] [data-kn-l=tr]{display:none!important}
 body{background:var(--bg)!important;color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 a{color:var(--acc)}
