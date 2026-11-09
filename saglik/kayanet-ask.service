@@ -3,7 +3,7 @@ Description=KayaNET: Sor servisi (Kiwix + LLM) / Ask service
 After=network.target kayanet-llm.service
 
 [Service]
-ExecStart=/usr/bin/python3 @REPO@/ai/ask.py
+ExecStart=/usr/bin/python3 @AI@/ask.py
 Restart=always
 RestartSec=5
 DynamicUser=yes

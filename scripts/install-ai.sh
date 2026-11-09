@@ -59,7 +59,9 @@ fi
 
 # 3. servisler / services
 sed -e "s#@MODEL@#$MODEL#g" -e "s#@AI@#$AI#g" "$REPO/saglik/kayanet-llm.service" > /etc/systemd/system/kayanet-llm.service
-sed -e "s#@REPO@#$REPO#g" "$REPO/saglik/kayanet-ask.service" > /etc/systemd/system/kayanet-ask.service
+# ask.py DynamicUser ile çalışır; /home/kaya okunamaz olduğundan /opt altına kopyalanır / copied under /opt (DynamicUser cannot read /home)
+install -m 644 "$REPO/ai/ask.py" "$AI/ask.py"
+sed -e "s#@AI@#$AI#g" "$REPO/saglik/kayanet-ask.service" > /etc/systemd/system/kayanet-ask.service
 systemctl daemon-reload
 systemctl enable --now kayanet-llm.service kayanet-ask.service >/dev/null
 echo "Bitti / done. Sayfa: http://$(hostname -I | awk '{print $1}')/home  (sağ alttaki sohbet balonu / chat bubble)"
