@@ -28,3 +28,4 @@ echo "Sistem bilgisi servisi çalışıyor / stats service running: has-stats.se
 
 # İçerik Ekle servisi + PIN / content store service + PIN
 "$REPO/scripts/install-store.sh"
+"$REPO/scripts/install-bridges.sh"

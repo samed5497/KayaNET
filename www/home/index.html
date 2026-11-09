@@ -277,7 +277,7 @@ pollDevices(); setInterval(() => { if (!document.hidden) pollDevices(); }, 7000)
 pollStats(); setInterval(() => { if (!document.hidden) pollStats(); }, 5000);
 
 /* Sohbet balonu: yapay zeka servisi (8081) çalışıyorsa cevap verir, yoksa kurulu olmadığını söyler. */
-const ASK = location.protocol + "//" + location.hostname + ":8081";
+const ASK = "/kn-ask";  /* nginx köprüsü -> 127.0.0.1:8081 */
 let AI_UP = null;
 function say(cls, text){ const d = document.createElement("div"); d.className = "cm " + cls; d.textContent = text; $("cmsgs").appendChild(d); $("cmsgs").scrollTop = 1e9; return d; }
 function checkAI(){ return fetch(ASK + "/status", {cache:"no-store"}).then(r => r.json()).then(s => { AI_UP = !!s.llm; }).catch(() => { AI_UP = false; })
