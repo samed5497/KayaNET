@@ -29,7 +29,7 @@ def words(s):
 def to_en(q):
     """TR soruyu EN'e çevir (İngilizce ZIM'lerde arama için); servis yoksa None."""
     try:
-        req = urllib.request.Request("http://127.0.0.1:8082/", data=json.dumps({"q": q, "source": "tr", "target": "en"}).encode(),
+        req = urllib.request.Request("http://127.0.0.1:8082/translate", data=json.dumps({"q": q, "source": "tr", "target": "en"}).encode(),
                                      headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=15) as r:
             return json.loads(r.read().decode()).get("translatedText") or None
