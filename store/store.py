@@ -6,6 +6,7 @@ KayaNET Content Store service: backend of the simple "Add content" page. Port 80
   Only ZIMs listed in config/content.conf can be downloaded (no other URL or command accepted).
 - Yazma işlemleri yönetici PIN'i ister (/etc/kayanet/pin). Okuma (durum, liste) açıktır.
   Writes need the admin PIN (/etc/kayanet/pin). Reading status/catalog is open.
+- /system (yeniden başlat/kapat) ve /setpin (PIN değiştir) da PIN ister.
 - İndirmeyi scripts/download-content.sh yapar (devam ettirme, sha256, boş yer kontrolü).
   The actual download is done by scripts/download-content.sh (resume, sha256, free-space check).
 Yalnızca standart kütüphane / standard library only.
@@ -96,6 +97,19 @@ class H(BaseHTTPRequestHandler):
                 JOB.update(running=True, items=sel, log=[], started=int(time.time()), rc=None)
             threading.Thread(target=run_job, args=(sel,), daemon=True).start()
             return self._json(200, {"started": sel})
+        if self.path.startswith("/system"):
+            act = d.get("action")
+            cmd = {"reboot": ["systemctl", "reboot"], "poweroff": ["systemctl", "poweroff"]}.get(act)
+            if not cmd: return self._json(400, {"error": "bilinmeyen işlem"})
+            self._json(200, {"ok": True, "action": act})
+            threading.Timer(2, lambda: subprocess.Popen(cmd)).start()
+            return
+        if self.path.startswith("/setpin"):
+            new = str(d.get("new", "")).strip()
+            if not re.fullmatch(r"\d{4,12}", new): return self._json(400, {"error": "PIN 4-12 rakam olmalı"})
+            with open(PIN_FILE, "w") as f: f.write(new + "\n")
+            os.chmod(PIN_FILE, 0o600)
+            return self._json(200, {"ok": True})
         self._json(404, {"error": "yok"})
 
 if __name__ == "__main__":

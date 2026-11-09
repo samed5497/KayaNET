@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KayaNET · Ayarlar</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("kn_theme")||"light"}catch(e){document.documentElement.dataset.theme="light"}</script>
+<script src="/home/kn-i18n.js"></script>
+<script src="/home/kn-bar.js"></script>
+<style>
+  :root{--bg:#eef3fb;--card:#fff;--ink:#14202e;--mute:#5b6b7c;--line:#e1e6ec;--acc:#0b6bcb;--acc2:#e8f1fc;--ok:#1a9d5b;--warn:#d98a00;--bad:#d33a2c;--shadow:0 1px 2px rgba(20,32,46,.06),0 4px 14px rgba(20,32,46,.05)}
+  html[data-theme=dark]{--bg:#0e141b;--card:#16202b;--ink:#e8eef5;--mute:#93a3b5;--line:#243242;--acc:#4da3ff;--acc2:#16304d;--ok:#3ecf8e;--warn:#f0b429;--bad:#ff6b5e;--shadow:none}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg) radial-gradient(1200px 420px at 50% -120px,rgba(11,107,203,.16),transparent);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  a{color:var(--acc)}
+  .wrap{max-width:900px;margin:0 auto;padding:16px}
+  h1{margin:6px 0 2px;font-size:26px;letter-spacing:-.5px}
+  .sub{color:var(--mute);margin:0 0 14px}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;box-shadow:var(--shadow);margin-bottom:12px}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+  .step{display:flex;gap:10px;align-items:flex-start}.step b{flex:none;width:28px;height:28px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center}
+  .pill{display:inline-block;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600;background:var(--acc2);color:var(--acc);margin:2px 4px 2px 0}
+  .pill.ok{background:rgba(26,157,91,.14);color:var(--ok)}.pill.bad{background:rgba(211,58,44,.14);color:var(--bad)}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  button,input{font:inherit}
+  .btn{border:0;border-radius:12px;padding:10px 16px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--acc),#3d8bff);color:#fff}
+  .btn.g{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  input[type=password],input[type=text]{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:10px;width:130px}
+  h3{margin:18px 2px 8px;font-size:13px;letter-spacing:.8px;text-transform:uppercase;color:var(--mute)}
+  .it{display:flex;gap:12px;align-items:flex-start;padding:10px 4px;border-bottom:1px solid var(--line)}
+  .it:last-child{border:0}
+  .it input{margin-top:5px;width:18px;height:18px}
+  .it .n{font-weight:700}.it .d{color:var(--mute);font-size:14px}
+  .it.dis{opacity:.5}
+  .log{font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;max-height:180px;overflow:auto;background:var(--bg);border-radius:10px;padding:8px;margin-top:8px}
+  .total{position:sticky;bottom:10px;margin-top:12px}
+  nav a{font-weight:600;text-decoration:none}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .btn.r{background:linear-gradient(135deg,#d33a2c,#e8594c)}
+  input[type=password]{width:160px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav><a href="/home/">← Ana sayfa</a></nav>
+  <h1>Ayarlar</h1>
+  <p class="sub">Cihazı bu sayfadan yönet. Değişiklikler için yönetici PIN'i gerekir.</p>
+
+  <div class="box"><strong>Yönetici PIN</strong>
+    <div class="row" style="margin-top:8px"><input type="password" id="pin" placeholder="Mevcut PIN" inputmode="numeric" autocomplete="off"></div>
+  </div>
+
+  <h3>Güç</h3>
+  <div class="box row">
+    <button class="btn g" id="reboot">Yeniden başlat</button>
+    <button class="btn r" id="off">Kapat</button>
+    <span class="sub" style="margin:0">Kapatmadan önce kimsenin kullanmadığından emin ol. Tekrar açmak için güç kaynağını çıkarıp tak.</span>
+  </div>
+
+  <h3>PIN değiştir</h3>
+  <div class="box row">
+    <input type="password" id="npin" placeholder="Yeni PIN (4-12 rakam)" inputmode="numeric" autocomplete="off">
+    <button class="btn g" id="setpin">Kaydet</button>
+  </div>
+
+  <h3>Durum</h3>
+  <div class="box" id="stat"></div>
+  <div class="box"><strong>Gelişmiş</strong>
+    <p class="sub" style="margin:6px 0 0">Ağ, Wi-Fi ve servis ayrıntıları için <a href="/admin">Yönetim Paneli</a>; içerik için <a href="/home/icerik.html">İçerik Ekle</a>.</p></div>
+  <div id="msg" class="sub"></div>
+</div>
+<script>
+const API = "/kn-store";
+const $ = id => document.getElementById(id);
+const L = (tr, en) => KN.lang === "en" ? en : tr;
+async function call(path, body){
+  try {
+    const r = await fetch(API + path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({pin:$("pin").value, ...body})});
+    const d = await r.json(); $("msg").textContent = r.ok ? L("Tamam.","Done.") : (d.error || "Hata");
+    return r.ok;
+  } catch (e) { $("msg").textContent = L("Servise ulaşılamadı.","Service unreachable."); return false; }
+}
+$("reboot").onclick = () => { if (confirm(L("Cihaz yeniden başlatılsın mı?","Reboot the device?"))) call("/system", {action:"reboot"}).then(ok => ok && ($("msg").textContent = L("Yeniden başlıyor, 1-2 dk sonra sayfayı yenile.","Rebooting, refresh in 1-2 minutes."))); };
+$("off").onclick = () => { if (confirm(L("Cihaz KAPATILSIN mı?","Power OFF the device?"))) call("/system", {action:"poweroff"}).then(ok => ok && ($("msg").textContent = L("Kapanıyor.","Shutting down."))); };
+$("setpin").onclick = async () => { if (await call("/setpin", {new:$("npin").value})) { $("pin").value = $("npin").value; $("npin").value = ""; } };
+function stat(){ fetch(API + "/status", {cache:"no-store"}).then(r => r.json()).then(s => {
+  $("stat").innerHTML = `<span class="pill ${s.internet ? "ok" : "bad"}">${s.internet ? L("İnternet var","Internet OK") : L("İnternet yok","No internet")}</span><span class="pill">${L("Boş alan","Free space")}: ${(s.free_mb/1024).toFixed(1)} GB</span><span class="pill">${L("Yüklü içerik","Installed")}: ${s.installed.length}</span>`;
+}).catch(() => { $("stat").textContent = L("Servis çalışmıyor.","Service not running."); }); }
+KN.init({ base:"tr", dict:"/home/i18n/home-en.json", titleOf: l => l === "en" ? "KayaNET · Settings" : "KayaNET · Ayarlar", onChange: stat });
+stat();
+</script>
+</body>
+</html>

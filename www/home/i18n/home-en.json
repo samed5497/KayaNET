@@ -104,5 +104,20 @@
 "Sohbet": "Chat",
 "Çeviri": "Translate",
 "Çevir": "Translate",
-"Metni yaz...": "Type text..."
+"Metni yaz...": "Type text...",
+"Ayarlar": "Settings",
+"Güç": "Power",
+"Durum": "Status",
+"Yeniden başlat": "Reboot",
+"Kapat": "Power off",
+"Kaydet": "Save",
+"PIN değiştir": "Change PIN",
+"Yönetici PIN": "Admin PIN",
+"Mevcut PIN": "Current PIN",
+"Yeni PIN (4-12 rakam)": "New PIN (4-12 digits)",
+"Gelişmiş": "Advanced",
+"Cihazı bu sayfadan yönet. Değişiklikler için yönetici PIN'i gerekir.": "Manage the device from this page. Changes need the admin PIN.",
+"Kapatmadan önce kimsenin kullanmadığından emin ol. Tekrar açmak için güç kaynağını çıkarıp tak.": "Make sure nobody is using it before powering off. Unplug and replug the power to turn it on again.",
+"← Ana sayfa": "← Home",
+"Yönetim Paneli": "Admin Panel"
 }
