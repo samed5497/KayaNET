@@ -4,18 +4,32 @@
   if (window.__knKiwix) return; window.__knKiwix = true;
   var framed = window.top !== window, $ = function (t, p, h) { var e = document.createElement(t); if (p) e.style.cssText = p; if (h) e.innerHTML = h; return e; };
   var tr = (document.documentElement.lang || "").slice(0, 2) === "tr";
-  var bar = $("div", "position:fixed;top:0;left:0;right:0;z-index:2147483000;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 12px;background:#0b6bcb;color:#fff;font:600 14px system-ui,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25)");
-  var btn = "border:0;border-radius:8px;padding:6px 12px;font:600 13px system-ui;cursor:pointer;background:#fff;color:#0b6bcb;text-decoration:none";
+  var H = 44, viewer = /^\/kiwix\/viewer/.test(location.pathname);
+  var btn = "border:0;border-radius:8px;padding:6px 10px;font:600 13px system-ui;cursor:pointer;background:#fff;color:#0b6bcb;text-decoration:none;white-space:nowrap";
+  var bar = $("div", "position:fixed;top:0;left:0;right:0;height:" + H + "px;z-index:2147483000;display:flex;gap:6px;align-items:center;padding:0 10px;overflow-x:auto;overflow-y:hidden;background:#0b6bcb;color:#fff;font:600 13px system-ui,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3)");
+  var sel = $("select", btn), go = $("button", btn + ";background:#ffd24a;color:#14202e", "🌐 Sayfayı çevir"), st = $("span", "font-weight:500;font-size:12px;opacity:.95;white-space:nowrap");
+  sel.innerHTML = '<option value="en-tr">EN → TR</option><option value="tr-en">TR → EN</option>'; sel.value = tr ? "tr-en" : "en-tr";
+  var chips = $("span", "display:flex;gap:5px;margin-left:auto;font-size:12px");
   if (!framed) {
-    bar.innerHTML = '<a href="/home/" style="' + btn + '">← KayaNET</a><a href="/home/acil.html" style="' + btn + ';background:#d33a2c;color:#fff">Acil Durum</a><a href="/kiwix/" style="' + btn + '">Kütüphane</a>';
+    bar.innerHTML = '<a href="/home/" style="' + btn + '">🏠 KayaNET</a><button id="knb" style="' + btn + '">◀</button><button id="knf" style="' + btn + '">▶</button>' +
+      '<a href="/home/acil.html" style="' + btn + ';background:#d33a2c;color:#fff">Acil</a><a href="/kiwix/" style="' + btn + '">Kütüphane</a>' +
+      '<form id="knq" style="display:flex;gap:4px;margin:0"><input id="knqi" placeholder="Ara…" style="border:0;border-radius:8px;padding:6px 10px;width:150px;font:13px system-ui"><button style="' + btn + '">Ara</button></form>';
+    bar.appendChild(go); bar.appendChild(sel); bar.appendChild(st); bar.appendChild(chips);
+    document.documentElement.appendChild(bar);
+    var bd = document.body.style; bd.position = "relative"; bd.transform = "translateZ(0)"; bd.marginTop = H + "px";
+    if (viewer) bd.height = "calc(100vh - " + H + "px)"; else bd.minHeight = "calc(100vh - " + H + "px)";
+    document.getElementById("knb").onclick = function () { history.back(); }; document.getElementById("knf").onclick = function () { history.forward(); };
+    document.getElementById("knq").onsubmit = function (e) {
+      e.preventDefault(); var q = document.getElementById("knqi").value.trim(); if (!q) return;
+      var m = /^\/kiwix\/viewer$/.test(location.pathname) && location.hash.match(/^#([^\/]+)/);
+      location.href = m ? "/kiwix/search?books.name=" + encodeURIComponent(m[1]) + "&pattern=" + encodeURIComponent(q) : "/kiwix/search?books.filter.lang=tur&pattern=" + encodeURIComponent(q);
+    };
+    var pst = function () { fetch("/home/stats.json", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (s) {
+      var rp = Math.round(100 * (s.mem.total - s.mem.avail) / s.mem.total), c = function (v) { return v >= 90 ? "#d33a2c" : v >= 75 ? "#d98a00" : "#fff"; };
+      var bt = s.battery && s.battery.pct != null ? "🔋" + Math.round(s.battery.pct) + "%" : "🔋—";
+      chips.innerHTML = [bt, "CPU " + s.cpu + "%", "RAM " + rp + "%", s.temp != null ? Math.round(s.temp) + "°C" : ""].filter(Boolean).map(function (t, i) { var v = i === 1 ? s.cpu : i === 2 ? rp : 0; return '<span style="background:' + c(v) + ';color:' + (c(v) === "#fff" ? "#0b6bcb" : "#fff") + ';border-radius:999px;padding:4px 8px">' + t + "</span>"; }).join(""); }).catch(function () {}); };
+    pst(); setInterval(function () { if (!document.hidden) pst(); }, 5000);
   }
-  var sel = $("select", btn); sel.innerHTML = '<option value="en-tr">English → Türkçe</option><option value="tr-en">Türkçe → English</option>'; sel.value = tr ? "tr-en" : "en-tr";
-  var go = $("button", btn + ";background:#ffd24a;color:#14202e", "🌐 Sayfayı çevir");
-  var st = $("span", "font-weight:500;font-size:13px;opacity:.95");
-  bar.appendChild(go); bar.appendChild(sel); bar.appendChild(st);
-  document.body.appendChild(bar);
-  document.body.style.paddingTop = (bar.offsetHeight + 4) + "px";
-  if (framed) bar.style.position = "sticky";
 
   /* Kütüphane ana sayfası (/kiwix/): kitap açıklamaları Türkçeleşsin (sözlük + yerel çeviri yedeği, önbellekli) */
   var DICT = {
@@ -48,13 +62,14 @@
   document.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a[href]"); if (!a || e.defaultPrevented || e.ctrlKey || e.metaKey) return;
     var u; try { u = new URL(a.href, location.href); } catch (x) { return; }
-    if (u.origin === location.origin && /\.pdf$/i.test(u.pathname)) { e.preventDefault(); location.href = "/home/pdf.html?src=" + encodeURIComponent(u.pathname + u.search); }
+    if (u.origin === location.origin && /\.pdf$/i.test(u.pathname)) { e.preventDefault(); (window.top || window).location.href = "/home/pdf.html?src=" + encodeURIComponent(u.pathname + u.search); }
   }, true);
 
   var nodes = [], busy = false, stop = false, on = false, CK = "kn_tc:";
+  function tdoc() { var f = document.querySelector("iframe"); try { if (viewer && f && f.contentDocument && f.contentDocument.body) return f.contentDocument; } catch (e) {} return document; }
   function collect() {
-    var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {
-      var p = n.parentNode; if (!p || bar.contains(n) || !/[A-Za-zÇĞİÖŞÜçğıöşü]{2}/.test(n.data)) return NodeFilter.FILTER_REJECT;
+    var D = tdoc(), w = D.createTreeWalker(D.body, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {
+      var p = n.parentNode; if (!p || (n.ownerDocument === document && bar.contains(n)) || !/[A-Za-zÇĞİÖŞÜçğıöşü]{2}/.test(n.data)) return NodeFilter.FILTER_REJECT;
       if (/^(SCRIPT|STYLE|CODE|PRE|TEXTAREA|NOSCRIPT)$/.test(p.tagName)) return NodeFilter.FILTER_REJECT;
       return NodeFilter.FILTER_ACCEPT; } });
     var a = [], n; while ((n = w.nextNode())) { if (n.__src === undefined) n.__src = n.data; a.push(n); }

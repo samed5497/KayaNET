@@ -20,6 +20,15 @@ location ^~ /kiwix/content/ {
     sub_filter_once on;
     sub_filter '</body>' '<script src="/home/kn-kiwix.js"></script></body>';
 }
+# Kiwix görüntüleyici (SPA; içerik iframe'de) / viewer
+location ^~ /kiwix/viewer {
+    proxy_pass $UP;
+    proxy_set_header Host \$host;
+    proxy_set_header Accept-Encoding "";
+    sub_filter_types text/html;
+    sub_filter_once on;
+    sub_filter '</body>' '<script src="/home/kn-kiwix.js"></script></body>';
+}
 # Arama sonuçları / search results
 location ^~ /kiwix/search {
     proxy_pass $UP;
