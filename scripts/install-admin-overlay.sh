@@ -35,9 +35,7 @@ INJECT='<link rel="stylesheet" href="/home/kn-admin.css"><script src="/home/kn-i
 cat > "$CONF_DIR/$CONF_NAME" <<EOF
 # KayaNET: /admin sayfasına dil katmanını ekler (IIAB dosyaları değişmez)
 location = /admin/ {
-    alias $ADMIN_DIR/index.html;
-    sub_filter '</body>' '$INJECT';
-    sub_filter_once on;
+    return 302 /admin/index.html;
 }
 location = /admin/index.html {
     alias $ADMIN_DIR/index.html;

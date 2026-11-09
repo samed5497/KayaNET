@@ -1,0 +1,13 @@
+[Unit]
+Description=KayaNET: icerik magazasi servisi / content store service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 @REPO@/store/store.py
+Environment=REPO=@REPO@
+Restart=always
+RestartSec=5
+Nice=10
+
+[Install]
+WantedBy=multi-user.target
