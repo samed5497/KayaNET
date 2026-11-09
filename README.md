@@ -58,7 +58,7 @@ Built on [Internet-in-a-Box](https://github.com/iiab/iiab) and [Kiwix](https://k
 ```bash
 sudo apt update && sudo apt full-upgrade -y
 sudo apt install -y git
-git clone https://github.com/samed5497/KayaNET.git
+git clone -b pi4-sd https://github.com/samed5497/KayaNET.git
 cd KayaNET
 chmod +x install.sh scripts/*.sh
 ```
@@ -177,6 +177,16 @@ Bu repo [schematrix/HAS_Prepper_Disk](https://github.com/schematrix/HAS_Prepper_
 - Kolibri kapalı. SSD eklenince: `setup-ssd.sh` ile bağla, `/library` içeriğini taşı, `config/iiab-overrides.yml` içinde Kolibri'yi aç, tam listeyi indir.
 - Pi 4'te SSD, USB 3.0 (mavi port) üzerinden UASP destekli SATA/NVMe adaptörle bağlanır; `setup-ssd.sh` için disk adı genelde `/dev/sda` olur.
 
+### Pi 4B kurulum notları (denendi: Pi OS Lite 64-bit trixie, Pi 4B, 32 GB SD)
+
+- **Kullanıcı/SSH:** Imager yerine kartın `bootfs` bölümüne boş bir `ssh` dosyası ve `userconf.txt` (`kullanici:<openssl passwd -6 çıktısı>`) koymak bu sürümde de çalıştı. Ethernet ile bağlan.
+- **Wi-Fi ülkesi:** Hotspot açılmadan önce ülke kodunu ayarla (`sudo raspi-config nonint do_wifi_country TR`); aksi halde Wi-Fi rfkill ile kapalı kalır.
+- **Kurulum süresi:** `install.sh`'ı `tmux` içinde çalıştır (SSH kopsa da sürer). Kurulum sırasında Pi yeniden başlayabilir; aynı komutu tekrar çalıştır, kaldığı yerden devam eder.
+- **Adresler:** `box.lan` adı sadece Pi'nin kendi Wi-Fi ağında (hotspot) çözülür. Ev ağından Pi'nin IP adresini kullan (`http://<pi-ip>/home`). Sabit IP için `nmcli con mod <eth0-profili> ipv4.method manual ipv4.addresses <ip>/24 ipv4.gateway <modem-ip> ipv4.dns <modem-ip>`; modemde bu adresi DHCP havuzu dışında tut.
+- **Yeni ZIM adları:** `wikem_en_all_maxi` Kiwix'ten kaldırıldı; askeri tıp `irp.fas.org_en_military-medicine` oldu (`config/content-sd.conf` güncel).
+- **Güç:** 5V/3A adaptör kullan; modem USB'sinden besleme düşük voltaj yapabilir.
+- **Fan (3 telli, GPIO):** kırmızı 5V → pin 4, siyah GND → pin 6; mavi kablo kitten kite değişir, doğrulamadan bağlama.
+
 ## Türkçe
 
 Raspberry Pi 5 üzerinde çevrimdışı bilgi arşivi. Wikipedia, haritalar, tıbbi başvuru kaynakları ve tamir rehberleri Pi'nin kendi Wi-Fi ağı üzerinden sunulur. Ağa bağlanan herhangi bir telefon ya da bilgisayar bunları tarayıcıdan açabilir. İnternet gerekmez.
@@ -205,7 +215,7 @@ Raspberry Pi 5 üzerinde çevrimdışı bilgi arşivi. Wikipedia, haritalar, tı
 ```bash
 sudo apt update && sudo apt full-upgrade -y
 sudo apt install -y git
-git clone https://github.com/samed5497/KayaNET.git
+git clone -b pi4-sd https://github.com/samed5497/KayaNET.git
 cd KayaNET
 chmod +x install.sh scripts/*.sh
 ```
