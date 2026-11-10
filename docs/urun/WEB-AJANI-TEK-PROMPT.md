@@ -25,4 +25,10 @@ Diğer ürün detay sayfalarının (ör. /apps/kefilo/) şablonunu baz al. Başl
 
 3) BONUS (ayrı iş, önce bana raporla): Tezgaha, PartCrest, SMSmart, MyTime, Wearapp kartlarında yalnızca simge var, ekran görüntüsü/ayrıntı yok. Aynı bölüm iskeletini bu sayfalar için hazırla, eksik içerikleri uydurma, boş bırakıp bana listele.
 
+4) FOTO BÖLÜMÜ (yalnız dosyalar varsa)
+Şu klasörde gerçek cihaz fotoğrafları olup olmadığına bak: docs/urun/foto/ (kayanet-cihaz.jpg, kayanet-hotspot-telefon.jpg, kayanet-kullanim.jpg; GitHub: https://github.com/samed5497/kayanet/tree/claude/project-thread-5inq01/docs/urun/foto). Dosya varsa /apps/kayanet/img/ altına WebP olarak kopyala ve detay sayfasına "Cihaz" bölümü ekle (alt metinli, lazy-load). Dosya yoksa bölümü ekleme, yer tutucu da koyma, sadece bana "foto bekleniyor" de. Hiçbir görseli üretme veya stok foto kullanma.
+
+5) DOĞRULAMA NOTU
+Detay sayfasındaki yapay zeka "yakında/doğrulama sürüyor" notunu ben onay verene kadar KALDIRMA (takip: GitHub issue "KayaNET yapay zeka sahada doğrulanınca web notunu kaldır").
+
 KONTROL: bitince 390 px mobil ve masaüstünde ekran görüntüsü alıp doğrula; değiştirdiğin dosyaların listesini ver.
